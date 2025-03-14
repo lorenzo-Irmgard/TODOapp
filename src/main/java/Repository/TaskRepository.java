@@ -12,8 +12,8 @@ public class TaskRepository {
 
     public TaskServiceAnswer addTask(Task task) {
 
-        if(tasks.add(task)) return new TaskServiceAnswer(TaskOperationStatus.SUCCESS, null, "Задача успешно создана");
-        return new TaskServiceAnswer(TaskOperationStatus.TASK_SET_IS_EMPTY, null, "Лист пуст");
+        if(tasks.add(task)) return new TaskServiceAnswer(TaskOperationStatus.SUCCESS, null);
+        return new TaskServiceAnswer(TaskOperationStatus.TASK_SET_IS_EMPTY, null);
     }
 
     public Set<Task> getTasks() {
