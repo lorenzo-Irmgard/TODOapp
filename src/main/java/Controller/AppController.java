@@ -1,6 +1,5 @@
 package Controller;
 
-import Repository.TaskRepository;
 import Service.TasksService;
 import lombok.Getter;
 
@@ -12,7 +11,6 @@ public class AppController {
     public void mainLoop() {
         ConsolePrinter consolePrinter = new ConsolePrinter();
         InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
-        TaskRepository taskRepository = new TaskRepository();
         TasksService tasksService = new TasksService();
         while(true) {
             consolePrinter.printMenu();
