@@ -11,7 +11,6 @@ public class AppController {
         TaskRepository taskRepository = new TaskRepository();
         while(true) {
             consolePrinter.printMenu();
-            System.out.println(inputScanAndValidate.menuOption());
 
         }
     }
