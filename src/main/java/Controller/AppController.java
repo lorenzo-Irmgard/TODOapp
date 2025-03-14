@@ -1,6 +1,7 @@
 package Controller;
 
 import Repository.TaskRepository;
+import Service.TasksService;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -12,11 +13,11 @@ public class AppController {
         ConsolePrinter consolePrinter = new ConsolePrinter();
         InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
         TaskRepository taskRepository = new TaskRepository();
+        TasksService tasksService = new TasksService();
         while(true) {
             consolePrinter.printMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu();
             if (userInput == menuOptions.EXIT.getOptionInNumberFormat()) break;
-
         }
     }
 }
