@@ -3,18 +3,20 @@ package Repository;
 import Model.Task;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 
 public class TaskRepository {
-    private final Set<Task> tasks = new HashSet<>();
+    private final Set<Task> tasks = new LinkedHashSet<>();
 
     public TaskOperationStatus addTask(Task task) {
-        if (tasks.contains(task)) {
-            return TaskOperationStatus.TASK_ALREADY_EXISTS;
-        } else {
-            tasks.add(task);
-            return TaskOperationStatus.SUCCESS;
-        }
+        if(tasks.add(task)) return TaskOperationStatus.SUCCESS;
+        return TaskOperationStatus.TASK_ALREADY_EXISTS;
+    }
+
+    public Set<Task> getTasks() {
+        if(!tasks.isEmpty()) return tasks;
+        return null;
     }
 }
