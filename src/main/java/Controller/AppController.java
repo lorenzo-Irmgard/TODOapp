@@ -1,10 +1,6 @@
 package Controller;
 
 import Service.TaskService;
-import lombok.Getter;
-
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class AppController {
@@ -15,7 +11,7 @@ public class AppController {
         while(true) {
             consolePrinter.printMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu();
-            if (userInput == menuOptions.EXIT.getOptionInNumberFormat()) break;
+            if (userInput == MenuOptions.EXIT.getOptionInNumberFormat()) break;
             taskService.processSelectedMenuOption(userInput);
         }
     }
@@ -27,7 +23,7 @@ class InputScanAndValidate {
     public int userChoiceInMenu() {
         while (true) {
             String userInput = scan.nextLine().trim();
-            if (menuOptions.getPossibleOptions().contains(userInput)) return Integer.parseInt(userInput);
+            if (MenuOptions.getPossibleOptions().contains(userInput)) return Integer.parseInt(userInput);
             System.out.println("Invalid input. Please, enter userInput number from menu");
         }
     }
@@ -53,23 +49,4 @@ class ConsolePrinter {
     }
 }
 
-@Getter
-enum menuOptions {
-    LIST(1),
-    ADD(2),
-    DELETE(3),
-    EDIT(4),
-    FILTER(5),
-    SORT(6),
-    EXIT(7);
-    private final int optionInNumberFormat;
-    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
 
-     menuOptions(int optionInNumberFormat) {
-        this.optionInNumberFormat = optionInNumberFormat;
-     }
-
-     static List<String> getPossibleOptions() {
-         return possibleOptions;
-     }
-}
