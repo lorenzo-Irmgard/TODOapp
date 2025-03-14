@@ -1,7 +1,10 @@
 package Controller;
 
 import Repository.TaskRepository;
+import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class AppController {
@@ -11,6 +14,8 @@ public class AppController {
         TaskRepository taskRepository = new TaskRepository();
         while(true) {
             consolePrinter.printMenu();
+            int userInput = inputScanAndValidate.userChoiceInMenu();
+            if (userInput == menuOptions.EXIT.getOptionInNumberFormat()) break;
 
         }
     }
@@ -19,27 +24,11 @@ public class AppController {
 class InputScanAndValidate {
     private final Scanner scan = new Scanner(System.in);
 
-    public int menuOption() {
+    public int userChoiceInMenu() {
         while (true) {
-            String option = scan.nextLine().trim();
-            switch (option) {
-                case "1":
-                    return 1;
-                case "2":
-                    return 2;
-                case "3":
-                    return 3;
-                case "4":
-                    return 4;
-                case "5":
-                    return 5;
-                case "6":
-                    return 6;
-                case "7":
-                    return 7;
-                default:
-                    System.out.println("Invalid input. Please enter a option number.");
-            }
+            String userInput = scan.nextLine().trim();
+            if (menuOptions.getPossibleOptions().contains(userInput)) return Integer.parseInt(userInput);
+            System.out.println("Invalid input. Please, enter userInput number from menu");
         }
     }
 }
@@ -62,4 +51,25 @@ class ConsolePrinter {
                 
                 7. Exit""");
     }
+}
+
+@Getter
+enum menuOptions {
+    LIST(1),
+    ADD(2),
+    DELETE(3),
+    EDIT(4),
+    FILTER(5),
+    SORT(6),
+    EXIT(7);
+    private final int optionInNumberFormat;
+    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
+
+     menuOptions(int optionInNumberFormat) {
+        this.optionInNumberFormat = optionInNumberFormat;
+     }
+
+     static List<String> getPossibleOptions() {
+         return possibleOptions;
+     }
 }
