@@ -1,30 +1,26 @@
 package Service;
 
-import Controller.MenuOptions;
-import DTO.TaskServiceAnswer;
+
 import Repository.TaskRepository;
+import lombok.Getter;
 
 public class TaskService {
     private final TaskRepository taskRepository = new TaskRepository();
 
-    public TaskServiceAnswer processSelectedMenuOption(int selectedOption) {
-        if (selectedOption == MenuOptions.LIST.getOptionInNumberFormat()) {
+}
 
-        }
-        if (selectedOption == MenuOptions.ADD.getOptionInNumberFormat()) {
-
-        }
-        if (selectedOption == MenuOptions.DELETE.getOptionInNumberFormat()) {
-
-        }
-        if (selectedOption == MenuOptions.EDIT.getOptionInNumberFormat()) {
-
-        }
-        if (selectedOption == MenuOptions.FILTER.getOptionInNumberFormat()) {
-
-        }
-        if (selectedOption == MenuOptions.SORT.getOptionInNumberFormat()) {
-
-        }
-    }
+@Getter
+enum StatusMessages {
+      TASK_SUCCESSFULUlLY_ADDED("Task successfully added!"),
+      TASK_SUCCESSFULLY_DELETED("Task successfully deleted!"),
+      TASK_SUCCESSFULLY_EDITED("Task successfully edited!"),
+      TAS_DELETION_FAILED("Task deletion failed, no such task!"),
+      TASK_EDITING_FAILED("Task editing failed, no such task!"),
+      TASK_ADDING_FAILED("Task adding failed, this task already exists!"),
+      EMPTY_SET("Tasks list is empty!");
+      private final String message;
+      
+      StatusMessages(String message) {
+          this.message = message;
+      }
 }

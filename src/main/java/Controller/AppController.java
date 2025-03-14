@@ -12,7 +12,7 @@ public class AppController {
             consolePrinter.printMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu();
             if (userInput == MenuOptions.EXIT.getOptionInNumberFormat()) break;
-            taskService.processSelectedMenuOption(userInput);
+
         }
     }
 }
