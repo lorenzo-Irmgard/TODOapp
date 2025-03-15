@@ -25,6 +25,7 @@ public class Task {
         this.name = name;
         this.status = TaskStatus.TODO;
         this.deadline = deadline;
+
         this.description = "No description";
     }
 
@@ -58,6 +59,7 @@ public class Task {
 
     @Override
     public String toString() {
+        if (deadline == null) return "\n" + name + "\nDescription: " + description + "\nStatuS: " + status + "\n";
         return "\n" + name + "\nDescription: " + description + "\nStatuS: " + status + "\nDeadline: " + deadline + "\n";
     }
 }
