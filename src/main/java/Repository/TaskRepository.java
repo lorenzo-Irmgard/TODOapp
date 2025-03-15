@@ -14,7 +14,9 @@ public class TaskRepository {
         return TaskOperationStatus.TASK_ALREADY_EXISTS;
     }
 
-    public TaskOperationStatus removeTask(Task task) {
+    public TaskOperationStatus removeTask(String taskName) {
+        tasks.stream().map(Task::getName).forEach(name -> tasks.removeIf(task -> name.equals(taskName)));
+        return tasks.isEmpty() ? TaskOperationStatus.TASK_NOT_FOUND : TaskOperationStatus.SUCCESS;
     }
 
     public Set<Task> getTasks() {
