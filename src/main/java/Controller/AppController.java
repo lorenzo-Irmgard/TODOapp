@@ -12,6 +12,12 @@ public class AppController {
             consolePrinter.printMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu();
             if (userInput == MenuOptions.EXIT.getOptionInNumberFormat()) break;
+            serviceMethodSelectionBasedOnUserInput(userInput);
+
+        }
+    }
+    private String serviceMethodSelectionBasedOnUserInput(int userInput) {
+        if (userInput == MenuOptions.LIST.getOptionInNumberFormat()) {
 
         }
     }
