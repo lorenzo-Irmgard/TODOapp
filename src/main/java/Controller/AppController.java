@@ -7,9 +7,33 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class AppController {
+    @Getter
+    enum MenuOptions {
+        LIST(1),
+        ADD(2),
+        DELETE(3),
+        EDIT(4),
+        FILTER(5),
+        SORT(6),
+        EXIT(7);
+
+        private final int optionInNumberFormat;
+        private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
+
+        MenuOptions(int optionInNumberFormat) {
+            this.optionInNumberFormat = optionInNumberFormat;
+        }
+
+        static List<String> getPossibleOptions() {
+            return possibleOptions;
+        }
+    }
+
     private final TaskService taskService = new TaskService();
     private final InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
 
@@ -128,6 +152,25 @@ class ConsolePrinter {
         RENAME_TASK("Enter a new name for your task:");
         private final String message;
     }
+
+    @Getter
+    enum TaskEditingOptions {
+        EDIT_NAME(1),
+        EDIT_DESCRIPTION(2),
+        EDIT_DEADLINE(3),
+        EDIT_ALL_FIELDS(4);
+
+        private final int optionInNumberFormat;
+        private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5");
+
+        TaskEditingOptions(int optionInNumberFormat) {
+            this.optionInNumberFormat = optionInNumberFormat;
+        }
+
+        static List<String> getPossibleOptions() {
+            return possibleOptions;
+        }
+    }
     public static void printMenu() {
         System.out.println("Choose your option and enter it's number:");
         System.out.println("""
@@ -160,7 +203,7 @@ class ConsolePrinter {
             
             4. Edit all task fields\
             
-            5. Stop from editing task""");
+            5. Stop editing task""");
     }
 }
 
