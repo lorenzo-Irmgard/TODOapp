@@ -12,28 +12,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AppController {
-    @Getter
-    enum MenuOptions {
-        LIST(1),
-        ADD(2),
-        DELETE(3),
-        EDIT(4),
-        FILTER(5),
-        SORT(6),
-        EXIT(7);
-
-        private final int optionInNumberFormat;
-        private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
-
-        MenuOptions(int optionInNumberFormat) {
-            this.optionInNumberFormat = optionInNumberFormat;
-        }
-
-        static List<String> getPossibleOptions() {
-            return possibleOptions;
-        }
-    }
-
     private final TaskService taskService = new TaskService();
     private final InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
 
@@ -204,6 +182,28 @@ class ConsolePrinter {
             4. Edit all task fields\
             
             5. Stop editing task""");
+    }
+}
+
+@Getter
+enum MenuOptions {
+    LIST(1),
+    ADD(2),
+    DELETE(3),
+    EDIT(4),
+    FILTER(5),
+    SORT(6),
+    EXIT(7);
+
+    private final int optionInNumberFormat;
+    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
+
+    MenuOptions(int optionInNumberFormat) {
+        this.optionInNumberFormat = optionInNumberFormat;
+    }
+
+    static List<String> getPossibleOptions() {
+        return possibleOptions;
     }
 }
 
