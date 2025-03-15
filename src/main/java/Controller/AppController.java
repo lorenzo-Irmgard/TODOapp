@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import static Controller.ConsolePrinter.printMessageForTaskNameScan;
+import static Controller.MainMenuOptions.*;
+import static Controller.TaskEditingMenuOptions.EDIT_NAME;
+
 public class AppController {
     private final TaskService taskService = new TaskService();
     private final InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
@@ -20,38 +24,50 @@ public class AppController {
             ConsolePrinter.printMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu(MainMenuOptions.getPossibleOptions());
             if (userInput == MainMenuOptions.EXIT.getOptionInNumberFormat()) break;
-            System.out.println(serviceMethodSelectionBasedOnUserInput(userInput));
+            System.out.println(chooseServiceMethodBasedOnUserInput(userInput));
 
         }
     }
-    private String serviceMethodSelectionBasedOnUserInput(int userInput) {
+    private String chooseServiceMethodBasedOnUserInput(int userInput) {
         String result = "";
-        if (userInput == MainMenuOptions.LIST.getOptionInNumberFormat()) {
+        if (userInput == LIST_ALL_TASKS.getOptionInNumberFormat()) {
             result = taskService.getTasksList();
         }
-        if (userInput == MainMenuOptions.ADD.getOptionInNumberFormat()) {
-            ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
-            String taskName = inputScanAndValidate.userInputTaskName();
-            String taskDescription = inputScanAndValidate.userInputTaskDescription();
-            LocalDateTime deadline = inputScanAndValidate.checkForUserInputTaskDeadline();
-            if (deadline != null) {
-                result = taskService.addTaskToList(new Task(taskName, taskDescription, deadline));
-            } else {
-                result = taskService.addTaskToList(new Task(taskName, taskDescription));
-            }
+        if (userInput == ADD.getOptionInNumberFormat()) {
+            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
+            result = taskService.addTaskToList(formNewTaskObject());
         }
-        if (userInput == MainMenuOptions.DELETE.getOptionInNumberFormat()) {
-            ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK);
-            String taskName = inputScanAndValidate.userInputTaskName();
-            result = taskService.removeTaskFromList(taskName);
+        if (userInput == DELETE.getOptionInNumberFormat()) {
+            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK);
+            result = taskService.removeTaskFromList(inputScanAndValidate.getTaskNameFromUser());
         }
-        if (userInput == MainMenuOptions.EDIT.getOptionInNumberFormat()) {
-            ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK);
-            String taskName = inputScanAndValidate.userInputTaskName();
-            switch (inputScanAndValidate.selectTaskFieldsToEdit()) {
+        if (userInput == EDIT.getOptionInNumberFormat()) {
+            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK);
+            result = chooseServiceMethodForEditing(inputScanAndValidate.getTaskNameFromUser(), inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
+        }
+        return result;
+    }
 
-            }
+    private Task formNewTaskObject() {
+        String taskName = inputScanAndValidate.getTaskNameFromUser();
+        String taskDescription = inputScanAndValidate.getTaskDescriptionFromUser();
+        LocalDateTime deadline = inputScanAndValidate.confirmationForGetTaskDeadlineFromUser();
+        if (deadline != null) return new Task(taskName, taskDescription, deadline);
+        return new Task(taskName, taskDescription);
+    }
+
+    private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {
+        String result = "";
+        if (userInput == EDIT_NAME.getOptionInNumberFormat()) {
+            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK);
+            result = taskService.editTaskName(nameOfTaskToEdit, inputScanAndValidate.getTaskNameFromUser());
         }
+//        if (userInput == TaskEditingMenuOptions.DESCRIPTION.getOptionInNumberFormat()) {
+//            result = taskService.editTaskDescription(inputScanAndValidate.getTaskDescriptionFromUser());
+//        }
+//        if (userInput == TaskEditingMenuOptions.DEADLINE.getOptionInNumberFormat()) {
+//            result = taskService.editTaskDeadline(inputScanAndValidate.confirmationForGetTaskDeadlineFromUser());
+//        }
         return result;
     }
 }
@@ -67,13 +83,13 @@ class InputScanAndValidate {
         }
     }
 
-    int selectTaskFieldsToEdit() {
+    int getUserChoiceForTaskFieldsToEdit() {
         System.out.println("What do you want to edit?");
         ConsolePrinter.printTaskEditingOptions();
         return userChoiceInMenu(TaskEditingMenuOptions.getPossibleOptions());
     }
 
-    String userInputTaskName() {
+    String getTaskNameFromUser() {
         while (true) {
             String userInput = scan.nextLine();
             if (!userInput.isEmpty()) return userInput;
@@ -81,22 +97,22 @@ class InputScanAndValidate {
         }
     }
 
-    String userInputTaskDescription() {
+    String getTaskDescriptionFromUser() {
         System.out.println("Enter your task description:");
         String userInput = scan.nextLine();
         if (!userInput.isEmpty()) return userInput;
         return "No description";
     }
 
-    LocalDateTime checkForUserInputTaskDeadline() {
+    LocalDateTime confirmationForGetTaskDeadlineFromUser() {
         System.out.println("Do you want add deadline to your task? (y/n)");
         if (yesOrNoCheck()) {
-            return userInputTaskDeadline();
+            return getTaskDeadlineFromUser();
         }
         return null;
     }
 
-    private LocalDateTime userInputTaskDeadline() {
+    private LocalDateTime getTaskDeadlineFromUser() {
         System.out.println("Enter your task deadline in format 'yyyy-MM-ddTHH:mm':");
         while (true) {
             String userInput = scan.nextLine();
@@ -169,7 +185,7 @@ class ConsolePrinter {
 
 @Getter
 enum MainMenuOptions {
-    LIST(1),
+    LIST_ALL_TASKS(1),
     ADD(2),
     DELETE(3),
     EDIT(4),
@@ -194,10 +210,12 @@ enum TaskEditingMenuOptions {
     EDIT_NAME(1),
     EDIT_DESCRIPTION(2),
     EDIT_DEADLINE(3),
-    EDIT_ALL_FIELDS(4);
+    EDIT_STATUS(4),
+    EDIT_ALL_FIELDS(5),
+    EXIT_EDITING_TASK(6);
 
     private final int optionInNumberFormat;
-    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5");
+    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6");
 
     TaskEditingMenuOptions(int optionInNumberFormat) {
         this.optionInNumberFormat = optionInNumberFormat;

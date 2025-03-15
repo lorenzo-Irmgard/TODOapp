@@ -14,10 +14,19 @@ public class TaskRepository {
         return TaskOperationStatus.TASK_ALREADY_EXISTS;
     }
 
-    public TaskOperationStatus removeTask(String taskName) {
+    public TaskOperationStatus findAndRemoveTask(String taskName) {
         tasks.stream().map(Task::getName).forEach(name -> tasks.removeIf(task -> name.equals(taskName)));
         return tasks.isEmpty() ? TaskOperationStatus.TASK_NOT_FOUND : TaskOperationStatus.SUCCESS;
     }
+
+    public void removeTask(Task taskToDelete) {
+        tasks.remove(taskToDelete);
+    }
+
+    public Task getTask(String taskName) {
+        return tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
+    }
+
 
     public Set<Task> getTasks() {
         if(!tasks.isEmpty()) return tasks;

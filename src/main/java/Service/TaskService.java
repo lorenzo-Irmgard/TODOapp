@@ -21,8 +21,23 @@ public class TaskService {
       }
 
       public String removeTaskFromList(String taskName) {
-            return (taskRepository.removeTask(taskName) == TaskOperationStatus.SUCCESS) ?
+            return (taskRepository.findAndRemoveTask(taskName) == TaskOperationStatus.SUCCESS) ?
                     StatusMessages.TASK_SUCCESSFULLY_DELETED.getMessage() : StatusMessages.TASk_DELETION_FAILED.getMessage();
+      }
+
+      public String editTaskName(String taskToEditName, String newName) {
+            Task taskToEdit = taskRepository.getTask(taskToEditName);
+            if (taskToEdit != null) {
+                  Task renamedTask = taskToEdit;
+                  renamedTask.setName(newName);
+                  if (taskRepository.addTask(renamedTask) == TaskOperationStatus.SUCCESS) {
+                        taskRepository.removeTask(taskToEdit);
+                        return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
+                  } else {
+                        return StatusMessages.TASK_ADDING_FAILED.getMessage();
+                  }
+
+            } else return StatusMessages.TASK_EDITING_FAILED.getMessage();
       }
 }
 
@@ -33,7 +48,7 @@ enum StatusMessages {
       TASK_SUCCESSFULLY_EDITED("Task successfully edited!"),
       TASk_DELETION_FAILED("Task deletion failed, no such task!"),
       TASK_EDITING_FAILED("Task editing failed, no such task!"),
-      TASK_ADDING_FAILED("Task adding failed, this task already exists!"),
+      TASK_ADDING_FAILED("This task is already exists!"),
       EMPTY_SET("Tasks list is empty!");
       private final String message;
       
