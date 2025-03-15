@@ -1,13 +1,28 @@
 package Service;
 
 
+import Model.Task;
+import Repository.TaskOperationStatus;
 import Repository.TaskRepository;
 import lombok.Getter;
 
 public class TaskService {
-    private final TaskRepository taskRepository = new TaskRepository();
+      private final TaskRepository taskRepository = new TaskRepository();
 
-    public
+      public String getTasksList() {
+            return (taskRepository.getTasks() == null) ?
+                    StatusMessages.EMPTY_SET.getMessage() : taskRepository.getTasks().toString();
+
+      }
+
+      public String addTask(Task task) {
+            return (taskRepository.addTask(task) == TaskOperationStatus.SUCCESS) ?
+                    StatusMessages.TASK_SUCCESSFULUlLY_ADDED.getMessage() : StatusMessages.TASK_ADDING_FAILED.getMessage();
+      }
+
+      public String removeTask(Task task) {
+
+      }
 }
 
 @Getter

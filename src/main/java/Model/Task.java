@@ -43,6 +43,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return name + "\nDescription: " + description + "\nStatuS: " + status + "\nDeadline: " + deadline + "\n\n";
+        return "\n" + name + "\nDescription: " + description + "\nStatuS: " + status + "\nDeadline: " + deadline + "\n";
     }
 }
