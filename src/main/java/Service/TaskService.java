@@ -26,7 +26,7 @@ public class TaskService {
       }
 
       public String editTaskName(String taskToEditName, String newName) {
-            Task taskToEdit = taskRepository.getTask(taskToEditName);
+            Task taskToEdit = taskRepository.getTask(taskToEditName); //TODO неправильно работает
             if (taskToEdit != null) {
                   Task renamedTask = taskToEdit;
                   renamedTask.setName(newName);
@@ -48,7 +48,7 @@ enum StatusMessages {
       TASK_SUCCESSFULLY_EDITED("Task successfully edited!"),
       TASk_DELETION_FAILED("Task deletion failed, no such task!"),
       TASK_EDITING_FAILED("Task editing failed, no such task!"),
-      TASK_ADDING_FAILED("This task is already exists!"),
+      TASK_ADDING_FAILED("Task with that name is already exists!"),
       EMPTY_SET("Tasks list is empty!");
       private final String message;
       
