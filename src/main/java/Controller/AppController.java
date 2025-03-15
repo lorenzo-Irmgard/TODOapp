@@ -12,12 +12,10 @@ import java.util.Scanner;
 public class AppController {
     private final TaskService taskService = new TaskService();
     private final InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
+
     public void mainLoop() {
-        ConsolePrinter consolePrinter = new ConsolePrinter();
-
-
         while(true) {
-            consolePrinter.printMenu();
+            ConsolePrinter.printMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu();
             if (userInput == MenuOptions.EXIT.getOptionInNumberFormat()) break;
             System.out.println(serviceMethodSelectionBasedOnUserInput(userInput));
@@ -30,7 +28,8 @@ public class AppController {
             result = taskService.getTasksList();
         }
         if (userInput == MenuOptions.ADD.getOptionInNumberFormat()) {
-            String taskName = inputScanAndValidate.userInputTaskName(InputScanAndValidate.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
+            ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
+            String taskName = inputScanAndValidate.userInputTaskName();
             String taskDescription = inputScanAndValidate.userInputTaskDescription();
             LocalDateTime deadline = inputScanAndValidate.checkForUserInputTaskDeadline();
             if (deadline != null) {
@@ -40,12 +39,16 @@ public class AppController {
             }
         }
         if (userInput == MenuOptions.DELETE.getOptionInNumberFormat()) {
-            String taskName = inputScanAndValidate.userInputTaskName(InputScanAndValidate.MessageTypeForUserInputTaskName.DELETE_TASK);
+            ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK);
+            String taskName = inputScanAndValidate.userInputTaskName();
             result = taskService.removeTaskFromList(taskName);
         }
         if (userInput == MenuOptions.EDIT.getOptionInNumberFormat()) {
-            String taskName = inputScanAndValidate.userInputTaskName(InputScanAndValidate.MessageTypeForUserInputTaskName.EDIT_TASK);
+            ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK);
+            String taskName = inputScanAndValidate.userInputTaskName();
+            switch (inputScanAndValidate.selectTaskFieldsToEdit()) {
 
+            }
         }
         return result;
     }
@@ -54,15 +57,6 @@ public class AppController {
 class InputScanAndValidate {
     private final Scanner scan = new Scanner(System.in);
 
-    @RequiredArgsConstructor
-    @Getter
-    enum MessageTypeForUserInputTaskName {
-        ADD_NEW_TASK("Enter name for your new task:"),
-        DELETE_TASK("Enter name of task you want to delete:"),
-        EDIT_TASK("Enter name of task you want to edit"),
-        RENAME_TASK("Enter a new name for your task:");
-        private final String message;
-    }
      int userChoiceInMenu() {
         while (true) {
             String userInput = scan.nextLine().trim();
@@ -72,11 +66,12 @@ class InputScanAndValidate {
     }
 
     String selectTaskFieldsToEdit() {
-        System.out.println("What do you want to edit");
+        System.out.println("What do you want to edit?");
+        ConsolePrinter.printTaskEditingOptions();
+
     }
 
-    String userInputTaskName(MessageTypeForUserInputTaskName workMode) {
-        System.out.println(workMode.message);
+    String userInputTaskName() {
         while (true) {
             String userInput = scan.nextLine();
             if (!userInput.isEmpty()) return userInput;
@@ -122,11 +117,18 @@ class InputScanAndValidate {
         }
     }
 }
-
 class ConsolePrinter {
 
-
-    public void printMenu() {
+    @RequiredArgsConstructor
+    @Getter
+    enum MessageTypeForUserInputTaskName {
+        ADD_NEW_TASK("Enter name for your new task:"),
+        DELETE_TASK("Enter name of task you want to delete:"),
+        EDIT_TASK("Enter name of task you want to edit"),
+        RENAME_TASK("Enter a new name for your task:");
+        private final String message;
+    }
+    public static void printMenu() {
         System.out.println("Choose your option and enter it's number:");
         System.out.println("""
                 1. List tasks\
@@ -144,7 +146,22 @@ class ConsolePrinter {
                 7. Exit""");
     }
 
+    public static void printMessageForTaskNameScan(MessageTypeForUserInputTaskName messageType) {
+        System.out.println(messageType.message);
+    }
 
+    public static void printTaskEditingOptions() {
+        System.out.println("""
+            1. Edit task name\
+            
+            2. Edit task description\
+            
+            3. Edit task deadline\
+            
+            4. Edit all task fields\
+            
+            5. Stop from editing task""");
+    }
 }
 
 
