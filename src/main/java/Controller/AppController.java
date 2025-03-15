@@ -18,18 +18,18 @@ public class AppController {
     public void mainLoop() {
         while(true) {
             ConsolePrinter.printMenu();
-            int userInput = inputScanAndValidate.userChoiceInMenu();
-            if (userInput == MenuOptions.EXIT.getOptionInNumberFormat()) break;
+            int userInput = inputScanAndValidate.userChoiceInMenu(MainMenuOptions.getPossibleOptions());
+            if (userInput == MainMenuOptions.EXIT.getOptionInNumberFormat()) break;
             System.out.println(serviceMethodSelectionBasedOnUserInput(userInput));
 
         }
     }
     private String serviceMethodSelectionBasedOnUserInput(int userInput) {
         String result = "";
-        if (userInput == MenuOptions.LIST.getOptionInNumberFormat()) {
+        if (userInput == MainMenuOptions.LIST.getOptionInNumberFormat()) {
             result = taskService.getTasksList();
         }
-        if (userInput == MenuOptions.ADD.getOptionInNumberFormat()) {
+        if (userInput == MainMenuOptions.ADD.getOptionInNumberFormat()) {
             ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
             String taskName = inputScanAndValidate.userInputTaskName();
             String taskDescription = inputScanAndValidate.userInputTaskDescription();
@@ -40,12 +40,12 @@ public class AppController {
                 result = taskService.addTaskToList(new Task(taskName, taskDescription));
             }
         }
-        if (userInput == MenuOptions.DELETE.getOptionInNumberFormat()) {
+        if (userInput == MainMenuOptions.DELETE.getOptionInNumberFormat()) {
             ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK);
             String taskName = inputScanAndValidate.userInputTaskName();
             result = taskService.removeTaskFromList(taskName);
         }
-        if (userInput == MenuOptions.EDIT.getOptionInNumberFormat()) {
+        if (userInput == MainMenuOptions.EDIT.getOptionInNumberFormat()) {
             ConsolePrinter.printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK);
             String taskName = inputScanAndValidate.userInputTaskName();
             switch (inputScanAndValidate.selectTaskFieldsToEdit()) {
@@ -59,18 +59,18 @@ public class AppController {
 class InputScanAndValidate {
     private final Scanner scan = new Scanner(System.in);
 
-     int userChoiceInMenu() {
+     int userChoiceInMenu(List<String> possibleOptions) {
         while (true) {
             String userInput = scan.nextLine().trim();
-            if (MenuOptions.getPossibleOptions().contains(userInput)) return Integer.parseInt(userInput);
+            if (possibleOptions.contains(userInput)) return Integer.parseInt(userInput);
             System.out.println("Invalid input. Please, enter userInput number from menu");
         }
     }
 
-    String selectTaskFieldsToEdit() {
+    int selectTaskFieldsToEdit() {
         System.out.println("What do you want to edit?");
         ConsolePrinter.printTaskEditingOptions();
-
+        return userChoiceInMenu(TaskEditingMenuOptions.getPossibleOptions());
     }
 
     String userInputTaskName() {
@@ -131,24 +131,6 @@ class ConsolePrinter {
         private final String message;
     }
 
-    @Getter
-    enum TaskEditingOptions {
-        EDIT_NAME(1),
-        EDIT_DESCRIPTION(2),
-        EDIT_DEADLINE(3),
-        EDIT_ALL_FIELDS(4);
-
-        private final int optionInNumberFormat;
-        private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5");
-
-        TaskEditingOptions(int optionInNumberFormat) {
-            this.optionInNumberFormat = optionInNumberFormat;
-        }
-
-        static List<String> getPossibleOptions() {
-            return possibleOptions;
-        }
-    }
     public static void printMenu() {
         System.out.println("Choose your option and enter it's number:");
         System.out.println("""
@@ -186,7 +168,7 @@ class ConsolePrinter {
 }
 
 @Getter
-enum MenuOptions {
+enum MainMenuOptions {
     LIST(1),
     ADD(2),
     DELETE(3),
@@ -198,7 +180,26 @@ enum MenuOptions {
     private final int optionInNumberFormat;
     private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
 
-    MenuOptions(int optionInNumberFormat) {
+    MainMenuOptions(int optionInNumberFormat) {
+        this.optionInNumberFormat = optionInNumberFormat;
+    }
+
+    static List<String> getPossibleOptions() {
+        return possibleOptions;
+    }
+}
+
+@Getter
+enum TaskEditingMenuOptions {
+    EDIT_NAME(1),
+    EDIT_DESCRIPTION(2),
+    EDIT_DEADLINE(3),
+    EDIT_ALL_FIELDS(4);
+
+    private final int optionInNumberFormat;
+    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5");
+
+    TaskEditingMenuOptions(int optionInNumberFormat) {
         this.optionInNumberFormat = optionInNumberFormat;
     }
 
