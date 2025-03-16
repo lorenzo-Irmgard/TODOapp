@@ -64,7 +64,9 @@ public class AppController {
         boolean editAllFieldsOption = userInput == EDIT_ALL_FIELDS.getOptionInNumberFormat();
         if (userInput == EDIT_NAME.getOptionInNumberFormat() || editAllFieldsOption) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK.getMessage());
-            result = taskService.editTaskName(nameOfTaskToEdit, inputScanAndValidate.getTaskNameFromUser());
+            String newName = inputScanAndValidate.getTaskNameFromUser();
+            result = taskService.editTaskName(nameOfTaskToEdit, newName);
+            nameOfTaskToEdit = newName;
         }
         if (userInput == EDIT_STATUS.getOptionInNumberFormat() || editAllFieldsOption) {
             System.out.println("Choose new task status:");
