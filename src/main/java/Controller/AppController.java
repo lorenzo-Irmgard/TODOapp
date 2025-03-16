@@ -29,25 +29,32 @@ public class AppController {
         }
     }
     private String chooseServiceMethodBasedOnUserInput(int userInput) {
-        String result = "";
         if (userInput == LIST_ALL_TASKS.getOptionInNumberFormat()) {
-            result = taskService.getAllTasks();
+            return taskService.getAllTasks();
         }
         if (userInput == ADD.getOptionInNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK.getMessage());
-            result = taskService.addTask(formNewTaskObject());
+            return taskService.addTask(formNewTaskObject());
         }
         if (userInput == DELETE.getOptionInNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK.getMessage());
-            result = taskService.removeTask(inputScanAndValidate.getTaskNameFromUser());
+            return taskService.removeTask(inputScanAndValidate.getTaskNameFromUser());
         }
         if (userInput == EDIT.getOptionInNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK.getMessage());
             String nameOfTaskToEdit = inputScanAndValidate.getTaskNameFromUser();
             if (!taskService.isTaskExist(nameOfTaskToEdit)) return "No such task!";
-            result = chooseServiceMethodForEditing(nameOfTaskToEdit, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
+            return chooseServiceMethodForEditing(nameOfTaskToEdit, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
         }
-        return result;
+        if (userInput == FILTER.getOptionInNumberFormat()) {
+            if (taskService.isTaskListEmpty()) return "Tasks list is empty!";
+            System.out.println("Select the status of which to filter");
+            ConsolePrinter.printTaskStatusOptions();
+            int userInputForFilter = inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions());
+            if (taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter)).isEmpty()) return "No tasks corresponding to the filter";
+            return taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
+        }
+        return "No such option";
     }
 
     private Task formNewTaskObject() {
@@ -69,9 +76,9 @@ public class AppController {
             nameOfTaskToEdit = newName;
         }
         if (userInput == EDIT_STATUS.getOptionInNumberFormat() || editAllFieldsOption) {
-            System.out.println("Choose new task status:");
+            System.out.println("Select new task status:");
             ConsolePrinter.printTaskStatusOptions();
-            result = taskService.editTaskStatus(nameOfTaskToEdit, inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions()));
+            result = taskService.editTaskStatus(nameOfTaskToEdit, TaskStatus.convertFromNumberToStatus(inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions())));
         }
         if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat() || editAllFieldsOption) {
             result = taskService.editTaskDescription(nameOfTaskToEdit, inputScanAndValidate.getTaskDescriptionFromUser());
