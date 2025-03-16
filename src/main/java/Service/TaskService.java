@@ -12,15 +12,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static Model.TaskStatus.*;
 import static Service.StatusMessages.*;
 
 public class TaskService {
       private final TaskRepository taskRepository = new TaskRepository();
-
-      public boolean isTaskListEmpty() {
-            return taskRepository.getAllTasks().isEmpty();
-      }
 
       public String getAllTasks() {
             return (taskRepository.getAllTasks() == null) ?
@@ -70,7 +65,23 @@ public class TaskService {
 
       public String getFilteredTasks(TaskStatus statusToFilter) {
             Set<Task> buff = taskRepository.getAllTasks().stream().filter(task -> task.getStatus() == statusToFilter).collect(Collectors.toSet());
-            return (!buff.isEmpty()) ? buff.toString() : "";
+            return (!buff.isEmpty()) ? buff.toString() : EMPTY_SET.getMessage();
+      }
+
+      public String getSortedByStatusTaskList() {
+            Set<Task> buff = taskRepository.getAllTasks().stream().sorted((o1, o2) -> {
+                  if (o1.getStatus().getOptionInNumberFormat() == o2.getStatus().getOptionInNumberFormat()) return 0;
+                  return (o1.getStatus().getOptionInNumberFormat() > o2.getStatus().getOptionInNumberFormat()) ? 1 : -1;
+            }).collect(Collectors.toCollection(LinkedHashSet::new));
+            return (!buff.isEmpty()) ? buff.toString() : EMPTY_SET.getMessage();
+      }
+
+      public String getSortedByDeadlineTaskList() {
+            Set<Task> buff = taskRepository.getAllTasks().stream().sorted((o1, o2) -> {
+                  if (o1.getDeadline().isEqual(o2.getDeadline())) return 0;
+                  return (o1.getDeadline().isAfter(o2.getDeadline())) ? 1 : -1;
+            }).collect(Collectors.toCollection(LinkedHashSet::new));
+            return (!buff.isEmpty()) ? buff.toString() : EMPTY_SET.getMessage();
       }
 }
 

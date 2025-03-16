@@ -47,12 +47,15 @@ public class AppController {
             return chooseServiceMethodForEditing(nameOfTaskToEdit, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
         }
         if (userInput == FILTER.getOptionInNumberFormat()) {
-            if (taskService.isTaskListEmpty()) return "Tasks list is empty!";
             System.out.println("Select the status of which to filter");
             ConsolePrinter.printTaskStatusOptions();
             int userInputForFilter = inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions());
-            if (taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter)).isEmpty()) return "No tasks corresponding to the filter";
             return taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
+        }
+        if (userInput == SORT.getOptionInNumberFormat()) {
+            System.out.println("Select which field to sort");
+            ConsolePrinter.printSortingMenuOptions();
+            return chooseServiceMethodForSorting(inputScanAndValidate.userChoiceInMenu(SortingMenuOptions.getPossibleOptions()));
         }
         return "No such option";
     }
@@ -63,6 +66,11 @@ public class AppController {
         LocalDateTime deadline = inputScanAndValidate.confirmationForGetTaskDeadlineFromUser();
         if (deadline != null) return new Task(taskName, taskDescription, deadline);
         return new Task(taskName, taskDescription);
+    }
+
+    private String chooseServiceMethodForSorting(int userInput) {
+        if (userInput == SortingMenuOptions.SORT_BY_STATUS.getOptionInNumberFormat()) return taskService.getSortedByStatusTaskList();
+        return taskService.getSortedByDeadlineTaskList();
     }
 
     private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {
@@ -206,9 +214,17 @@ class ConsolePrinter {
                 
                 3. DONE""");
     }
+
+    public static void printSortingMenuOptions() {
+        System.out.println("""
+                1. Sort by task status\
+                
+                2. Sort by task deadline""");
+    }
 }
 
 @Getter
+@RequiredArgsConstructor
 enum MainMenuOptions {
     LIST_ALL_TASKS(1),
     ADD(2),
@@ -221,10 +237,17 @@ enum MainMenuOptions {
     private final int optionInNumberFormat;
     @Getter
     private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
+}
 
-    MainMenuOptions(int optionInNumberFormat) {
-        this.optionInNumberFormat = optionInNumberFormat;
-    }
+@Getter
+@RequiredArgsConstructor
+enum SortingMenuOptions {
+    SORT_BY_STATUS(1),
+    SORT_BY_DEADLINE(2);
+
+    private final int optionInNumberFormat;
+    @Getter
+    private final static List<String> possibleOptions = Arrays.asList("1", "2");
 }
 
 @RequiredArgsConstructor
