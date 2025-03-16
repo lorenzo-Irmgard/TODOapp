@@ -1,6 +1,7 @@
 package Controller;
 
 import Model.Task;
+import Model.TaskStatus;
 import Service.TaskService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import static Controller.ConsolePrinter.printMessageForTaskNameScan;
 import static Controller.MainMenuOptions.*;
-import static Controller.TaskEditingMenuOptions.EDIT_NAME;
+import static Controller.TaskEditingMenuOptions.*;
 
 public class AppController {
     private final TaskService taskService = new TaskService();
@@ -21,7 +21,7 @@ public class AppController {
 
     public void mainLoop() {
         while(true) {
-            ConsolePrinter.printMenu();
+            ConsolePrinter.printMainMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu(MainMenuOptions.getPossibleOptions());
             if (userInput == MainMenuOptions.EXIT.getOptionInNumberFormat()) break;
             System.out.println(chooseServiceMethodBasedOnUserInput(userInput));
@@ -34,15 +34,15 @@ public class AppController {
             result = taskService.getAllTasks();
         }
         if (userInput == ADD.getOptionInNumberFormat()) {
-            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
+            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK.getMessage());
             result = taskService.addTask(formNewTaskObject());
         }
         if (userInput == DELETE.getOptionInNumberFormat()) {
-            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK);
+            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK.getMessage());
             result = taskService.removeTask(inputScanAndValidate.getTaskNameFromUser());
         }
         if (userInput == EDIT.getOptionInNumberFormat()) {
-            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK);
+            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK.getMessage());
             String taskToEditName = inputScanAndValidate.getTaskNameFromUser();
             if (!taskService.isTaskExist(taskToEditName)) return "No such task!";
             result = chooseServiceMethodForEditing(taskToEditName, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
@@ -58,11 +58,17 @@ public class AppController {
         return new Task(taskName, taskDescription);
     }
 
-    private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {
+    private String chooseServiceMethodForEditing(String taskToEditName, int userInput) {
         String result = "";
+        if (userInput == EXIT_EDITING_TASK.getOptionInNumberFormat()) return result;
         if (userInput == EDIT_NAME.getOptionInNumberFormat()) {
-            printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK);
-            result = taskService.editTaskName(nameOfTaskToEdit, inputScanAndValidate.getTaskNameFromUser());
+            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK.getMessage());
+            result = taskService.editTaskName(taskToEditName, inputScanAndValidate.getTaskNameFromUser());
+        }
+        if (userInput == EDIT_STATUS.getOptionInNumberFormat()) {
+            System.out.println("Choose new task status:");
+            ConsolePrinter.printTaskStatusOptions();
+            result = taskService.editTaskStatus(taskToEditName, inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions()));
         }
 //        if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat()) {
 //            result = taskService.editTaskDescription(inputScanAndValidate.getTaskDescriptionFromUser());
@@ -149,7 +155,7 @@ class ConsolePrinter {
         private final String message;
     }
 
-    public static void printMenu() {
+    public static void printMainMenu() {
         System.out.println("Choose your option and enter it's number:");
         System.out.println("""
                 1. List tasks\
@@ -167,21 +173,28 @@ class ConsolePrinter {
                 7. Exit""");
     }
 
-    public static void printMessageForTaskNameScan(MessageTypeForUserInputTaskName messageType) {
-        System.out.println(messageType.message);
-    }
-
     public static void printTaskEditingOptions() {
         System.out.println("""
             1. Edit task name\
             
-            2. Edit task description\
+            2. Edit task status\
             
-            3. Edit task deadline\
+            3. Edit task description\
             
-            4. Edit all task fields\
+            4. Edit task deadline\
             
-            5. Stop editing task""");
+            5. Edit all task fields\
+            
+            6. Stop editing task""");
+    }
+
+    public static void printTaskStatusOptions() {
+        System.out.println("""
+                1. TODO\
+                
+                2. IN PROGRESS\
+                
+                3. DONE""");
     }
 }
 
@@ -196,36 +209,27 @@ enum MainMenuOptions {
     EXIT(7);
 
     private final int optionInNumberFormat;
+    @Getter
     private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
 
     MainMenuOptions(int optionInNumberFormat) {
         this.optionInNumberFormat = optionInNumberFormat;
     }
-
-    static List<String> getPossibleOptions() {
-        return possibleOptions;
-    }
 }
 
+@RequiredArgsConstructor
 @Getter
 enum TaskEditingMenuOptions {
     EDIT_NAME(1),
-    EDIT_DESCRIPTION(2),
-    EDIT_DEADLINE(3),
-    EDIT_STATUS(4),
+    EDIT_STATUS(2),
+    EDIT_DESCRIPTION(3),
+    EDIT_DEADLINE(4),
     EDIT_ALL_FIELDS(5),
     EXIT_EDITING_TASK(6);
 
     private final int optionInNumberFormat;
+    @Getter
     private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6");
-
-    TaskEditingMenuOptions(int optionInNumberFormat) {
-        this.optionInNumberFormat = optionInNumberFormat;
-    }
-
-    static List<String> getPossibleOptions() {
-        return possibleOptions;
-    }
 }
 
 

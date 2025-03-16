@@ -2,9 +2,12 @@ package Service;
 
 
 import Model.Task;
+import Model.TaskStatus;
 import Repository.TaskOperationStatus;
 import Repository.TaskRepository;
 import lombok.Getter;
+
+import static Model.TaskStatus.*;
 
 public class TaskService {
       private final TaskRepository taskRepository = new TaskRepository();
@@ -30,9 +33,18 @@ public class TaskService {
       }
 
       public String editTaskName(String taskToEditName, String newName) {
-            Task taskToEdit = taskRepository.getTask(taskToEditName);
             if (taskRepository.containsTask(newName)) return StatusMessages.TASK_ADDING_FAILED.getMessage();
+            Task taskToEdit = taskRepository.getTask(taskToEditName);
             taskToEdit.setName(newName);
+            return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
+      }
+
+      public String editTaskStatus(String taskToEditName, int taskStatusInNumberFormat) {
+            TaskStatus newStatus = TODO;
+            if (taskStatusInNumberFormat == IN_PROGRESS.getOptionInNumberFormat()) newStatus = IN_PROGRESS;
+            if (taskStatusInNumberFormat == DONE.getOptionInNumberFormat()) newStatus = DONE;
+            Task taskToEdit = taskRepository.getTask(taskToEditName);
+            taskToEdit.setStatus(newStatus);
             return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
       }
 }
