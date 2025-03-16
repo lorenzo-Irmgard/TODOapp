@@ -21,6 +21,13 @@ public class Task {
         this.description = "No description";
     }
 
+    public Task(Task task) {
+        this.name = task.getName();
+        this.status = task.getStatus();
+        this.description = task.getDescription();
+        this.deadline = task.getDeadline();
+    }
+
     public Task(String name, LocalDateTime deadline) {
         this.name = name;
         this.status = TaskStatus.TODO;

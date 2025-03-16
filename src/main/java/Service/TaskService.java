@@ -26,12 +26,12 @@ public class TaskService {
       }
 
       public String editTaskName(String taskToEditName, String newName) {
-            Task taskToEdit = taskRepository.getTask(taskToEditName); //TODO неправильно работает
+            Task taskToEdit = taskRepository.getTask(taskToEditName);
             if (taskToEdit != null) {
-                  Task renamedTask = taskToEdit;
+                  Task renamedTask = new Task(taskToEdit);
                   renamedTask.setName(newName);
                   if (taskRepository.addTask(renamedTask) == TaskOperationStatus.SUCCESS) {
-                        taskRepository.removeTask(taskToEdit);
+                        taskRepository.findAndRemoveTask(taskToEdit);
                         return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
                   } else {
                         return StatusMessages.TASK_ADDING_FAILED.getMessage();

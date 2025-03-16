@@ -15,11 +15,11 @@ public class TaskRepository {
     }
 
     public TaskOperationStatus findAndRemoveTask(String taskName) {
-        tasks.stream().map(Task::getName).forEach(name -> tasks.removeIf(task -> name.equals(taskName)));
-        return tasks.isEmpty() ? TaskOperationStatus.TASK_NOT_FOUND : TaskOperationStatus.SUCCESS;
+        Task taskToDelete = tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
+        return tasks.remove(taskToDelete) ? TaskOperationStatus.SUCCESS : TaskOperationStatus.TASK_NOT_FOUND;
     }
 
-    public void removeTask(Task taskToDelete) {
+    public void findAndRemoveTask(Task taskToDelete) {
         tasks.remove(taskToDelete);
     }
 
