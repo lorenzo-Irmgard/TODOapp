@@ -9,35 +9,31 @@ import lombok.Getter;
 public class TaskService {
       private final TaskRepository taskRepository = new TaskRepository();
 
-      public String getTasksList() {
-            return (taskRepository.getTasks() == null) ?
-                    StatusMessages.EMPTY_SET.getMessage() : taskRepository.getTasks().toString();
+      public String getAllTasks() {
+            return (taskRepository.getAllTasks() == null) ?
+                    StatusMessages.EMPTY_SET.getMessage() : taskRepository.getAllTasks().toString();
 
       }
 
-      public String addTaskToList(Task task) {
+      public String addTask(Task task) {
             return (taskRepository.addTask(task) == TaskOperationStatus.SUCCESS) ?
                     StatusMessages.TASK_SUCCESSFULUlLY_ADDED.getMessage() : StatusMessages.TASK_ADDING_FAILED.getMessage();
       }
 
-      public String removeTaskFromList(String taskName) {
+      public String removeTask(String taskName) {
             return (taskRepository.findAndRemoveTask(taskName) == TaskOperationStatus.SUCCESS) ?
                     StatusMessages.TASK_SUCCESSFULLY_DELETED.getMessage() : StatusMessages.TASk_DELETION_FAILED.getMessage();
       }
 
+      public boolean isTaskExist(String name) {
+            return taskRepository.containsTask(name);
+      }
+
       public String editTaskName(String taskToEditName, String newName) {
             Task taskToEdit = taskRepository.getTask(taskToEditName);
-            if (taskToEdit != null) {
-                  Task renamedTask = new Task(taskToEdit);
-                  renamedTask.setName(newName);
-                  if (taskRepository.addTask(renamedTask) == TaskOperationStatus.SUCCESS) {
-                        taskRepository.findAndRemoveTask(taskToEdit);
-                        return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
-                  } else {
-                        return StatusMessages.TASK_ADDING_FAILED.getMessage();
-                  }
-
-            } else return StatusMessages.TASK_EDITING_FAILED.getMessage();
+            if (taskRepository.containsTask(newName)) return StatusMessages.TASK_ADDING_FAILED.getMessage();
+            taskToEdit.setName(newName);
+            return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
       }
 }
 
@@ -47,7 +43,6 @@ enum StatusMessages {
       TASK_SUCCESSFULLY_DELETED("Task successfully deleted!"),
       TASK_SUCCESSFULLY_EDITED("Task successfully edited!"),
       TASk_DELETION_FAILED("Task deletion failed, no such task!"),
-      TASK_EDITING_FAILED("Task editing failed, no such task!"),
       TASK_ADDING_FAILED("Task with that name is already exists!"),
       EMPTY_SET("Tasks list is empty!");
       private final String message;

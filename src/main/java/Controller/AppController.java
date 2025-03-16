@@ -31,19 +31,21 @@ public class AppController {
     private String chooseServiceMethodBasedOnUserInput(int userInput) {
         String result = "";
         if (userInput == LIST_ALL_TASKS.getOptionInNumberFormat()) {
-            result = taskService.getTasksList();
+            result = taskService.getAllTasks();
         }
         if (userInput == ADD.getOptionInNumberFormat()) {
             printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK);
-            result = taskService.addTaskToList(formNewTaskObject());
+            result = taskService.addTask(formNewTaskObject());
         }
         if (userInput == DELETE.getOptionInNumberFormat()) {
             printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK);
-            result = taskService.removeTaskFromList(inputScanAndValidate.getTaskNameFromUser());
+            result = taskService.removeTask(inputScanAndValidate.getTaskNameFromUser());
         }
         if (userInput == EDIT.getOptionInNumberFormat()) {
             printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK);
-            result = chooseServiceMethodForEditing(inputScanAndValidate.getTaskNameFromUser(), inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
+            String taskToEditName = inputScanAndValidate.getTaskNameFromUser();
+            if (!taskService.isTaskExist(taskToEditName)) return "No such task!";
+            result = chooseServiceMethodForEditing(taskToEditName, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
         }
         return result;
     }
@@ -62,7 +64,7 @@ public class AppController {
             printMessageForTaskNameScan(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK);
             result = taskService.editTaskName(nameOfTaskToEdit, inputScanAndValidate.getTaskNameFromUser());
         }
-//        if (userInput == TaskEditingMenuOptions.DESCRIPTION.getOptionInNumberFormat()) {
+//        if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat()) {
 //            result = taskService.editTaskDescription(inputScanAndValidate.getTaskDescriptionFromUser());
 //        }
 //        if (userInput == TaskEditingMenuOptions.DEADLINE.getOptionInNumberFormat()) {

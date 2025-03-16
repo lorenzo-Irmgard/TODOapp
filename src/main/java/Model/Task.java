@@ -66,7 +66,7 @@ public class Task {
 
     @Override
     public String toString() {
-        if (deadline == null) return "\n" + name + "\nDescription: " + description + "\nStatuS: " + status + "\n";
-        return "\n" + name + "\nDescription: " + description + "\nStatuS: " + status + "\nDeadline: " + deadline + "\n";
+        if (deadline == null) return "\n" + name + "\nStatus: " + status + "\nDescription: " + description + "\nDeadline: no deadline\n";
+        return "\n" + name + "\nStatus: " + status + "\nDescription: " + description + "\nDeadline: " + deadline + "\n";
     }
 }

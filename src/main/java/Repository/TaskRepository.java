@@ -27,9 +27,12 @@ public class TaskRepository {
         return tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
     }
 
-
-    public Set<Task> getTasks() {
+    public Set<Task> getAllTasks() {
         if(!tasks.isEmpty()) return tasks;
         return null;
+    }
+
+    public boolean containsTask(String taskName) {
+        return tasks.stream().anyMatch(task -> task.getName().equals(taskName));
     }
 }
