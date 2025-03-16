@@ -32,7 +32,6 @@ public class Task {
         this.name = name;
         this.status = TaskStatus.TODO;
         this.deadline = deadline;
-
         this.description = "No description";
     }
 

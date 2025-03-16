@@ -47,6 +47,13 @@ public class TaskService {
             taskToEdit.setStatus(newStatus);
             return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
       }
+
+      public String editTaskDescription(String taskToEditName, String newDescription) {
+            Task taskToEdit = taskRepository.getTask(taskToEditName);
+            if (newDescription.isBlank()) taskToEdit.setDescription("No description");
+            else taskToEdit.setDescription(newDescription);
+            return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
+      }
 }
 
 @Getter

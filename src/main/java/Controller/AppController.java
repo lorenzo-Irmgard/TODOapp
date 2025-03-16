@@ -70,9 +70,9 @@ public class AppController {
             ConsolePrinter.printTaskStatusOptions();
             result = taskService.editTaskStatus(taskToEditName, inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions()));
         }
-//        if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat()) {
-//            result = taskService.editTaskDescription(inputScanAndValidate.getTaskDescriptionFromUser());
-//        }
+        if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat()) {
+            result = taskService.editTaskDescription(taskToEditName, inputScanAndValidate.getTaskDescriptionFromUser());
+        }
 //        if (userInput == TaskEditingMenuOptions.DEADLINE.getOptionInNumberFormat()) {
 //            result = taskService.editTaskDeadline(inputScanAndValidate.confirmationForGetTaskDeadlineFromUser());
 //        }
@@ -106,9 +106,9 @@ class InputScanAndValidate {
     }
 
     String getTaskDescriptionFromUser() {
-        System.out.println("Enter your task description:");
+        System.out.println("Enter your task description or leave the field empty for no description:");
         String userInput = scan.nextLine();
-        if (!userInput.isEmpty()) return userInput;
+        if (!userInput.isBlank()) return userInput;
         return "No description";
     }
 
