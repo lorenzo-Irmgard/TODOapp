@@ -7,6 +7,8 @@ import Repository.TaskOperationStatus;
 import Repository.TaskRepository;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 import static Model.TaskStatus.*;
 
 public class TaskService {
@@ -32,26 +34,32 @@ public class TaskService {
             return taskRepository.containsTask(name);
       }
 
-      public String editTaskName(String taskToEditName, String newName) {
+      public String editTaskName(String nameOfTaskToEdit, String newName) {
             if (taskRepository.containsTask(newName)) return StatusMessages.TASK_ADDING_FAILED.getMessage();
-            Task taskToEdit = taskRepository.getTask(taskToEditName);
+            Task taskToEdit = taskRepository.getTask(nameOfTaskToEdit);
             taskToEdit.setName(newName);
             return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
       }
 
-      public String editTaskStatus(String taskToEditName, int taskStatusInNumberFormat) {
+      public String editTaskStatus(String nameOfTaskToEdit, int taskStatusInNumberFormat) {
             TaskStatus newStatus = TODO;
             if (taskStatusInNumberFormat == IN_PROGRESS.getOptionInNumberFormat()) newStatus = IN_PROGRESS;
             if (taskStatusInNumberFormat == DONE.getOptionInNumberFormat()) newStatus = DONE;
-            Task taskToEdit = taskRepository.getTask(taskToEditName);
+            Task taskToEdit = taskRepository.getTask(nameOfTaskToEdit);
             taskToEdit.setStatus(newStatus);
             return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
       }
 
-      public String editTaskDescription(String taskToEditName, String newDescription) {
-            Task taskToEdit = taskRepository.getTask(taskToEditName);
+      public String editTaskDescription(String nameOfTaskToEdit, String newDescription) {
+            Task taskToEdit = taskRepository.getTask(nameOfTaskToEdit);
             if (newDescription.isBlank()) taskToEdit.setDescription("No description");
             else taskToEdit.setDescription(newDescription);
+            return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
+      }
+      
+      public String editTaskDeadline(String nameOfTaskToEdit, LocalDateTime newDeadLine) {
+            Task taskToEdit = taskRepository.getTask(nameOfTaskToEdit);
+            taskToEdit.setDeadline(newDeadLine);
             return StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage();
       }
 }

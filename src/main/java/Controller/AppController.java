@@ -43,9 +43,9 @@ public class AppController {
         }
         if (userInput == EDIT.getOptionInNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK.getMessage());
-            String taskToEditName = inputScanAndValidate.getTaskNameFromUser();
-            if (!taskService.isTaskExist(taskToEditName)) return "No such task!";
-            result = chooseServiceMethodForEditing(taskToEditName, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
+            String nameOfTaskToEdit = inputScanAndValidate.getTaskNameFromUser();
+            if (!taskService.isTaskExist(nameOfTaskToEdit)) return "No such task!";
+            result = chooseServiceMethodForEditing(nameOfTaskToEdit, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
         }
         return result;
     }
@@ -58,24 +58,25 @@ public class AppController {
         return new Task(taskName, taskDescription);
     }
 
-    private String chooseServiceMethodForEditing(String taskToEditName, int userInput) {
+    private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {
         String result = "";
         if (userInput == EXIT_EDITING_TASK.getOptionInNumberFormat()) return result;
-        if (userInput == EDIT_NAME.getOptionInNumberFormat()) {
+        boolean editAllFieldsOption = userInput == EDIT_ALL_FIELDS.getOptionInNumberFormat();
+        if (userInput == EDIT_NAME.getOptionInNumberFormat() || editAllFieldsOption) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK.getMessage());
-            result = taskService.editTaskName(taskToEditName, inputScanAndValidate.getTaskNameFromUser());
+            result = taskService.editTaskName(nameOfTaskToEdit, inputScanAndValidate.getTaskNameFromUser());
         }
-        if (userInput == EDIT_STATUS.getOptionInNumberFormat()) {
+        if (userInput == EDIT_STATUS.getOptionInNumberFormat() || editAllFieldsOption) {
             System.out.println("Choose new task status:");
             ConsolePrinter.printTaskStatusOptions();
-            result = taskService.editTaskStatus(taskToEditName, inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions()));
+            result = taskService.editTaskStatus(nameOfTaskToEdit, inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions()));
         }
-        if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat()) {
-            result = taskService.editTaskDescription(taskToEditName, inputScanAndValidate.getTaskDescriptionFromUser());
+        if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat() || editAllFieldsOption) {
+            result = taskService.editTaskDescription(nameOfTaskToEdit, inputScanAndValidate.getTaskDescriptionFromUser());
         }
-//        if (userInput == TaskEditingMenuOptions.DEADLINE.getOptionInNumberFormat()) {
-//            result = taskService.editTaskDeadline(inputScanAndValidate.confirmationForGetTaskDeadlineFromUser());
-//        }
+        if (userInput == EDIT_DEADLINE.getOptionInNumberFormat() || editAllFieldsOption) {
+            result = taskService.editTaskDeadline(nameOfTaskToEdit, inputScanAndValidate.getTaskDeadlineFromUser());
+        }
         return result;
     }
 }
@@ -120,7 +121,7 @@ class InputScanAndValidate {
         return null;
     }
 
-    private LocalDateTime getTaskDeadlineFromUser() {
+    LocalDateTime getTaskDeadlineFromUser() {
         System.out.println("Enter your task deadline in format 'yyyy-MM-ddTHH:mm':");
         while (true) {
             String userInput = scan.nextLine();
