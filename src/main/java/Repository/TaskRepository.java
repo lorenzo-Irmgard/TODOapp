@@ -19,17 +19,12 @@ public class TaskRepository {
         return tasks.remove(taskToDelete) ? TaskOperationStatus.SUCCESS : TaskOperationStatus.TASK_NOT_FOUND;
     }
 
-    public void findAndRemoveTask(Task taskToDelete) {
-        tasks.remove(taskToDelete);
-    }
-
     public Task getTask(String taskName) {
         return tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
     }
 
     public Set<Task> getAllTasks() {
-        if(!tasks.isEmpty()) return tasks;
-        return null;
+        return tasks;
     }
 
     public boolean containsTask(String taskName) {

@@ -11,6 +11,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import static Controller.MainMenuOptions.*;
 import static Controller.TaskEditingMenuOptions.*;
@@ -30,7 +31,8 @@ public class AppController {
     }
     private String chooseServiceMethodBasedOnUserInput(int userInput) {
         if (userInput == LIST_ALL_TASKS.getOptionInNumberFormat()) {
-            return taskService.getAllTasks();
+            Set<Task> taskList = taskService.getAllTasks();
+            return (taskList.isEmpty()) ? "Tasks list is empty!" : taskList.toString();
         }
         if (userInput == ADD.getOptionInNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK.getMessage());
@@ -50,7 +52,8 @@ public class AppController {
             System.out.println("Select the status of which to filter");
             ConsolePrinter.printTaskStatusOptions();
             int userInputForFilter = inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions());
-            return taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
+            Set<Task> filteredTasksList = taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
+            return (filteredTasksList.isEmpty()) ? "Tasks list is empty!" : filteredTasksList.toString();
         }
         if (userInput == SORT.getOptionInNumberFormat()) {
             System.out.println("Select which field to sort");
@@ -69,8 +72,10 @@ public class AppController {
     }
 
     private String chooseServiceMethodForSorting(int userInput) {
-        if (userInput == SortingMenuOptions.SORT_BY_STATUS.getOptionInNumberFormat()) return taskService.getSortedByStatusTaskList();
-        return taskService.getSortedByDeadlineTaskList();
+        Set<Task> sortedTasksList;
+        if (userInput == SortingMenuOptions.SORT_BY_STATUS.getOptionInNumberFormat()) sortedTasksList = taskService.getSortedByStatusTaskList();
+        else sortedTasksList = taskService.getSortedByDeadlineTaskList();
+        return (sortedTasksList.isEmpty()) ? "Tasks list is empty!" : sortedTasksList.toString();
     }
 
     private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {

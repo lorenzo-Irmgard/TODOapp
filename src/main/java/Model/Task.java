@@ -1,10 +1,8 @@
 package Model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.swing.text.html.HTMLDocument;
 import java.time.LocalDateTime;
 
 @Setter
@@ -14,26 +12,6 @@ public class Task {
     private TaskStatus status;
     private String description;
     private LocalDateTime deadline;
-
-    public Task(String name) {
-        this.name = name;
-        this.status = TaskStatus.TODO;
-        this.description = "No description";
-    }
-
-    public Task(Task task) {
-        this.name = task.getName();
-        this.status = task.getStatus();
-        this.description = task.getDescription();
-        this.deadline = task.getDeadline();
-    }
-
-    public Task(String name, LocalDateTime deadline) {
-        this.name = name;
-        this.status = TaskStatus.TODO;
-        this.deadline = deadline;
-        this.description = "No description";
-    }
 
     public Task(String name, String description) {
         this.name = name;
