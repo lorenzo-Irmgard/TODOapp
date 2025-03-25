@@ -26,6 +26,12 @@ public class Task {
         this.deadline = deadline;
     }
 
+    public Task(String name, String description, TaskStatus status) {
+        this.name = name;
+        this.status = status;
+        this.description = description;
+    }
+
     //Не через lombok так как нужно сравнивать только по названию (я думаю что ломбок сравнивает по всем полям)
     @Override
     public boolean equals(Object o) {

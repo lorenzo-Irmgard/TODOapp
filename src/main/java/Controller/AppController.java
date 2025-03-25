@@ -2,6 +2,7 @@ package Controller;
 
 import Model.Task;
 import Model.TaskStatus;
+import Repository.TaskRepository;
 import Service.TaskService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,10 @@ import java.util.Set;
 
 import static Controller.MainMenuOptions.*;
 import static Controller.TaskEditingMenuOptions.*;
+import static Service.StatusMessages.EMPTY_SET;
 
 public class AppController {
-    private final TaskService taskService = new TaskService();
+    private final TaskService taskService = new TaskService(new TaskRepository());
     private final InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
 
     public void mainLoop() {
@@ -26,13 +28,12 @@ public class AppController {
             int userInput = inputScanAndValidate.userChoiceInMenu(MainMenuOptions.getPossibleOptions());
             if (userInput == MainMenuOptions.EXIT.getOptionInNumberFormat()) break;
             System.out.println(chooseServiceMethodBasedOnUserInput(userInput));
-
         }
     }
     private String chooseServiceMethodBasedOnUserInput(int userInput) {
         if (userInput == LIST_ALL_TASKS.getOptionInNumberFormat()) {
             Set<Task> taskList = taskService.getAllTasks();
-            return (taskList.isEmpty()) ? "Tasks list is empty!" : taskList.toString();
+            return (taskList.isEmpty()) ? EMPTY_SET.getMessage() : taskList.toString();
         }
         if (userInput == ADD.getOptionInNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK.getMessage());
@@ -53,7 +54,7 @@ public class AppController {
             ConsolePrinter.printTaskStatusOptions();
             int userInputForFilter = inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions());
             Set<Task> filteredTasksList = taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
-            return (filteredTasksList.isEmpty()) ? "Tasks list is empty!" : filteredTasksList.toString();
+            return (filteredTasksList.isEmpty()) ? EMPTY_SET.getMessage() : filteredTasksList.toString();
         }
         if (userInput == SORT.getOptionInNumberFormat()) {
             System.out.println("Select which field to sort");
@@ -73,9 +74,9 @@ public class AppController {
 
     private String chooseServiceMethodForSorting(int userInput) {
         Set<Task> sortedTasksList;
-        if (userInput == SortingMenuOptions.SORT_BY_STATUS.getOptionInNumberFormat()) sortedTasksList = taskService.getSortedByStatusTaskList();
-        else sortedTasksList = taskService.getSortedByDeadlineTaskList();
-        return (sortedTasksList.isEmpty()) ? "Tasks list is empty!" : sortedTasksList.toString();
+        if (userInput == SortingMenuOptions.SORT_BY_STATUS.getOptionInNumberFormat()) sortedTasksList = taskService.getTaskListSortedByStatus();
+        else sortedTasksList = taskService.getTaskListSortedByDeadline();
+        return (sortedTasksList.isEmpty()) ? EMPTY_SET.getMessage() : sortedTasksList.toString();
     }
 
     private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {
