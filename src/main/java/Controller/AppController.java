@@ -20,37 +20,37 @@ public class AppController {
         while(true) {
             ConsolePrinter.printMainMenu();
             int userInput = inputScanAndValidate.userChoiceInMenu(MainMenuOptions.getPossibleOptions());
-            if (userInput == MainMenuOptions.EXIT.getOptionInNumberFormat()) break;
+            if (userInput == EXIT.getNumberFormat()) break;
             System.out.println(chooseServiceMethodBasedOnUserInput(userInput));
         }
     }
     private String chooseServiceMethodBasedOnUserInput(int userInput) {
-        if (userInput == LIST_ALL_TASKS.getOptionInNumberFormat()) {
+        if (userInput == LIST_ALL_TASKS.getNumberFormat()) {
             Set<Task> taskList = taskService.getAllTasks();
             return (taskList.isEmpty()) ? EMPTY_SET.getMessage() : taskList.toString();
         }
-        if (userInput == ADD.getOptionInNumberFormat()) {
+        if (userInput == ADD.getNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK.getMessage());
             return taskService.addTask(formNewTaskObject());
         }
-        if (userInput == DELETE.getOptionInNumberFormat()) {
+        if (userInput == DELETE.getNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK.getMessage());
             return taskService.removeTask(inputScanAndValidate.getTaskNameFromUser());
         }
-        if (userInput == EDIT.getOptionInNumberFormat()) {
+        if (userInput == EDIT.getNumberFormat()) {
             System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK.getMessage());
             String nameOfTaskToEdit = inputScanAndValidate.getTaskNameFromUser();
             if (!taskService.isTaskExist(nameOfTaskToEdit)) return "No such task!";
             return chooseServiceMethodForEditing(nameOfTaskToEdit, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
         }
-        if (userInput == FILTER.getOptionInNumberFormat()) {
+        if (userInput == FILTER.getNumberFormat()) {
             System.out.println("Select the status of which to filter");
             ConsolePrinter.printTaskStatusOptions();
             int userInputForFilter = inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions());
             Set<Task> filteredTasksList = taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
             return (filteredTasksList.isEmpty()) ? EMPTY_SET.getMessage() : filteredTasksList.toString();
         }
-        if (userInput == SORT.getOptionInNumberFormat()) {
+        if (userInput == SORT.getNumberFormat()) {
             System.out.println("Select which field to sort");
             ConsolePrinter.printSortingMenuOptions();
             return chooseServiceMethodForSorting(inputScanAndValidate.userChoiceInMenu(SortingMenuOptions.getPossibleOptions()));
@@ -61,9 +61,8 @@ public class AppController {
     private Task formNewTaskObject() {
         String taskName = inputScanAndValidate.getTaskNameFromUser();
         String taskDescription = inputScanAndValidate.getTaskDescriptionFromUser();
-        LocalDateTime deadline = inputScanAndValidate.confirmationForGetTaskDeadlineFromUser();
-        if (deadline != null) return new Task(taskName, taskDescription, deadline);
-        return new Task(taskName, taskDescription);
+        LocalDateTime deadline = inputScanAndValidate.getTaskDeadlineFromUser();
+        return new Task(taskName, taskDescription, deadline);
     }
 
     private String chooseServiceMethodForSorting(int userInput) {

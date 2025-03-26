@@ -17,7 +17,7 @@ public enum MainMenuOptions {
     SORT(6),
     EXIT(7);
 
-    private final int optionInNumberFormat;
+    private final int numberFormat;
     @Getter
     private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6", "7");
 }
