@@ -8,11 +8,7 @@ import Repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static Service.StatusMessages.*;
 
@@ -20,8 +16,10 @@ import static Service.StatusMessages.*;
 public class TaskService {
       private final TaskRepository taskRepository;
 
-      public Set<Task> getAllTasks() {
-            return taskRepository.getAllTasks();
+      public String getAllTasks() {
+            return taskRepository.getAllTasks()
+                    .values()
+                    .toString();
       }
 
       public String addTask(Task task) {
@@ -64,22 +62,30 @@ public class TaskService {
             return TASK_SUCCESSFULLY_EDITED.getMessage();
       }
 
-      public Set<Task> getFilteredTasks(TaskStatus statusToFilter) {
+      public String getFilteredTasks(TaskStatus statusToFilter) {
             return taskRepository.getAllTasks()
+                    .values()
                     .stream()
                     .filter(task -> task.getStatus() == statusToFilter)
-                    .collect(Collectors.toSet());
+                    .toList()
+                    .toString();
       }
 
-      public Set<Task> getTaskListSortedByStatus() {
-            return taskRepository.getAllTasks().stream()
+      public String getTaskListSortedByStatus() {
+            return taskRepository.getAllTasks()
+                    .values()
+                    .stream()
                     .sorted(Comparator.comparingInt(task -> task.getStatus().getNumberFormat()))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .toList()
+                    .toString();
       }
 
-      public Set<Task> getTaskListSortedByDeadline() {
-            return taskRepository.getAllTasks().stream()
+      public String getTaskListSortedByDeadline() {
+            return taskRepository.getAllTasks()
+                    .values()
+                    .stream()
                     .sorted(Comparator.comparing(Task::getDeadline))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .toList()
+                    .toString();
       }
 }

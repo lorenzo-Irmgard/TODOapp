@@ -2,32 +2,34 @@ package Repository;
 
 import Model.Task;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class TaskRepository {
-    private final Set<Task> tasks = new LinkedHashSet<>();
+    private final Map<String, Task> tasks = new LinkedHashMap<>();
 
     public TaskOperationStatus addTask(Task task) {
-        if(tasks.add(task)) return  TaskOperationStatus.SUCCESS;
-        return TaskOperationStatus.TASK_ALREADY_EXISTS;
+        if(tasks.containsKey(task.getName())) {
+            return TaskOperationStatus.TASK_ALREADY_EXISTS;
+        }
+        tasks.put(task.getName(), task);
+        return TaskOperationStatus.SUCCESS;
     }
 
     public TaskOperationStatus findAndRemoveTask(String taskName) {
-        Task taskToDelete = tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
-        return tasks.remove(taskToDelete) ? TaskOperationStatus.SUCCESS : TaskOperationStatus.TASK_NOT_FOUND;
+        return (tasks.remove(taskName) == null) ? TaskOperationStatus.TASK_NOT_FOUND : TaskOperationStatus.SUCCESS;
     }
 
     public Task getTask(String taskName) {
-        return tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
+        return tasks.get(taskName);
     }
 
-    public Set<Task> getAllTasks() {
+    public Map<String,Task> getAllTasks() {
         return tasks;
     }
 
     public boolean containsTask(String taskName) {
-        return tasks.stream().anyMatch(task -> task.getName().equals(taskName));
+        return tasks.containsKey(taskName);
     }
 }

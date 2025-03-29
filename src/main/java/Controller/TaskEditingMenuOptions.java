@@ -18,5 +18,5 @@ public enum TaskEditingMenuOptions {
 
     private final int optionInNumberFormat;
     @Getter
-    private final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6");
+    public final static List<String> possibleOptions = Arrays.asList("1", "2", "3", "4", "5", "6");
 }
