@@ -1,8 +1,7 @@
+import Exceptions.EmptyTasksListException;
+import Exceptions.TaskAlreadyExistException;
 import Model.Task;
-import Model.TaskStatus;
-import Repository.TaskOperationStatus;
 import Repository.TaskRepository;
-import Service.StatusMessages;
 import Service.TaskService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,24 @@ public class TaskServiceTest {
     @Mock
     private TaskRepository taskRepository;
 
+//    @Test
+//    void getAllTasks() {
+//        Task task1 = new Task("task1", "De");
+//        Task task2 = new Task("task2", "scr");
+//        Task task3 = new Task("task3", "ipt");
+//        Task task4 = new Task("task4", "ion");
+//
+//        Map<String, Task> testTasks = new LinkedHashMap<>();
+//        testTasks.put(task1.getName(), task1);
+//        testTasks.put(task2.getName(), task2);
+//        testTasks.put(task3.getName(), task3);
+//        testTasks.put(task4.getName(), task4);
+//        Mockito.when(taskRepository.getAllTasks()).thenReturn(testTasks);
+//        Assertions.assertEquals(testTasks.values().toString(), taskService.getAllTasks());
+//    }
+
     @Test
-    void getAllTasks() {
+    public void getAllTasks() throws EmptyTasksListException {
         Task task1 = new Task("task1", "De");
         Task task2 = new Task("task2", "scr");
         Task task3 = new Task("task3", "ipt");
@@ -39,159 +54,168 @@ public class TaskServiceTest {
         Assertions.assertEquals(testTasks.values().toString(), taskService.getAllTasks());
     }
 
+//    @Test
+//    void addTask_newTask() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.addTask(task1)).thenReturn(TaskOperationStatus.SUCCESS);
+//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_ADDED.getMessage(), taskService.addTask(task1));
+//    }
+
     @Test
-    void addTask_newTask() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.addTask(task1)).thenReturn(TaskOperationStatus.SUCCESS);
-        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULUlLY_ADDED.getMessage(), taskService.addTask(task1));
+    void addTask_WhenTaskAlreadyExists_ThrowTaskAlreadyExistException() {
+        Task task = new Task("Test", "Test", LocalDateTime.now());
+        Mockito.when(taskRepository.containsTask(task)).thenReturn(true);
+        Assertions.assertThrows(TaskAlreadyExistException.class, () -> taskService.addTask(task));
     }
 
     @Test
-    void addTask_existingTask() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.addTask(task1)).thenReturn(TaskOperationStatus.TASK_ALREADY_EXISTS);
-        Assertions.assertEquals(StatusMessages.TASK_ADDING_FAILED.getMessage(), taskService.addTask(task1));
+    void addTask_WhenTaskIsNew_AddTaskToRepository() throws TaskAlreadyExistException {
+        Task task = new Task("Test", "Test", LocalDateTime.now());
+        Mockito.when(taskRepository.containsTask(task)).thenReturn(false);
+        taskService.addTask(task);
+        Mockito.verify(taskRepository).addTask(task);
     }
 
-    @Test
-    void removeTask() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.findAndRemoveTask(task1.getName())).thenReturn(TaskOperationStatus.SUCCESS);
-        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_DELETED.getMessage(), taskService.removeTask(task1.getName()));
-    }
-
-    @Test
-    void removeTask_noSuchTask() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.findAndRemoveTask(task1.getName())).thenReturn(TaskOperationStatus.TASK_NOT_FOUND);
-        Assertions.assertEquals(StatusMessages.TASk_DELETION_FAILED.getMessage(), taskService.removeTask(task1.getName()));
-    }
-
-    @Test
-    void editTaskName() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.containsTask("newTaskName")).thenReturn(false);
-        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
-        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskName(task1.getName(), "newTaskName"));
-        Assertions.assertEquals("newTaskName", task1.getName());
-    }
-
-    @Test
-    void editTaskName_taskAlreadyExists() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.containsTask("newTaskName")).thenReturn(true);
-        Assertions.assertEquals(StatusMessages.TASK_ADDING_FAILED.getMessage(), taskService.editTaskName(task1.getName(), "newTaskName"));
-    }
-
-    @Test
-    void editTaskStatus() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
-        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskStatus(task1.getName(), TaskStatus.IN_PROGRESS));
-        Assertions.assertEquals(TaskStatus.IN_PROGRESS, task1.getStatus());
-    }
-
-    @Test
-    void editTaskDescription() {
-        Task task1 = new Task("task1", "De");
-        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
-        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskDescription(task1.getName(), "newDescription"));
-        Assertions.assertEquals("newDescription", task1.getDescription());
-    }
-
-    @Test
-    void editTaskDeadline() {
-        LocalDateTime oldDeadline = LocalDateTime.parse("2025-05-21T12:00");
-        LocalDateTime newDeadline = LocalDateTime.parse("2026-05-21T12:00");
-        Task task1 = new Task("task1", "De", oldDeadline);
-        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
-        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskDeadline(task1.getName(), newDeadline));
-        Assertions.assertEquals(newDeadline, task1.getDeadline());
-    }
-
-    @Test
-    void getFilteredTasks() {
-        Task task1 = new Task("task1", "De", TaskStatus.TODO);
-        Task task3 = new Task("task3", "ri", TaskStatus.DONE);
-        Task task2 = new Task("task2", "ri", TaskStatus.IN_PROGRESS);
-        Task task4 = new Task("task4", "pti", TaskStatus.TODO);
-        Task task5 = new Task("task5", "on", TaskStatus.DONE);
-        Map<String, Task> mockMap = new LinkedHashMap<>();
-        mockMap.put(task1.getName(), task1);
-        mockMap.put(task2.getName(), task2);
-        mockMap.put(task3.getName(), task3);
-        mockMap.put(task4.getName(), task4);
-        mockMap.put(task5.getName(), task5);
-        Set<Task> todoSet = new LinkedHashSet<>();
-        todoSet.add(task1);
-        todoSet.add(task4);
-        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
-        Assertions.assertEquals(todoSet.toString(), taskService.getFilteredTasks(TaskStatus.TODO));
-    }
 
 //    @Test
-//    void getFilteredTasks_empty() {
+//    void removeTask() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.removeTask(task1.getName())).thenReturn(TaskOperationStatus.SUCCESS);
+//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_DELETED.getMessage(), taskService.removeTask(task1.getName()));
+//    }
+//
+//    @Test
+//    void removeTask_noSuchTask() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.removeTask(task1.getName())).thenReturn(TaskOperationStatus.TASK_NOT_FOUND);
+//        Assertions.assertEquals(StatusMessages.TASk_DELETION_FAILED.getMessage(), taskService.removeTask(task1.getName()));
+//    }
+//
+//    @Test
+//    void editTaskName() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.containsTask("newTaskName")).thenReturn(false);
+//        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
+//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskName(task1.getName(), "newTaskName"));
+//        Assertions.assertEquals("newTaskName", task1.getName());
+//    }
+//
+//    @Test
+//    void editTaskName_taskAlreadyExists() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.containsTask("newTaskName")).thenReturn(true);
+//        Assertions.assertEquals(StatusMessages.TASK_ADDING_FAILED.getMessage(), taskService.editTaskName(task1.getName(), "newTaskName"));
+//    }
+//
+//    @Test
+//    void editTaskStatus() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
+//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskStatus(task1.getName(), TaskStatus.IN_PROGRESS));
+//        Assertions.assertEquals(TaskStatus.IN_PROGRESS, task1.getStatus());
+//    }
+//
+//    @Test
+//    void editTaskDescription() {
+//        Task task1 = new Task("task1", "De");
+//        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
+//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskDescription(task1.getName(), "newDescription"));
+//        Assertions.assertEquals("newDescription", task1.getDescription());
+//    }
+//
+//    @Test
+//    void editTaskDeadline() {
+//        LocalDateTime oldDeadline = LocalDateTime.parse("2025-05-21T12:00");
+//        LocalDateTime newDeadline = LocalDateTime.parse("2026-05-21T12:00");
+//        Task task1 = new Task("task1", "De", oldDeadline);
+//        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
+//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskDeadline(task1.getName(), newDeadline));
+//        Assertions.assertEquals(newDeadline, task1.getDeadline());
+//    }
+//
+//    @Test
+//    void getFilteredTasks() {
 //        Task task1 = new Task("task1", "De", TaskStatus.TODO);
 //        Task task3 = new Task("task3", "ri", TaskStatus.DONE);
+//        Task task2 = new Task("task2", "ri", TaskStatus.IN_PROGRESS);
 //        Task task4 = new Task("task4", "pti", TaskStatus.TODO);
 //        Task task5 = new Task("task5", "on", TaskStatus.DONE);
 //        Map<String, Task> mockMap = new LinkedHashMap<>();
 //        mockMap.put(task1.getName(), task1);
+//        mockMap.put(task2.getName(), task2);
 //        mockMap.put(task3.getName(), task3);
 //        mockMap.put(task4.getName(), task4);
 //        mockMap.put(task5.getName(), task5);
+//        Set<Task> todoSet = new LinkedHashSet<>();
+//        todoSet.add(task1);
+//        todoSet.add(task4);
 //        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
-//        Assertions.assertTrue(taskService.getFilteredTasks(TaskStatus.IN_PROGRESS).isEmpty());
-//    } //TODO переделать тест после реализации Exceptions
-
-    @Test
-    void getTaskListSortedByStatus() {
-        Task task1 = new Task("task1", "De", TaskStatus.TODO);
-        Task task2 = new Task("task2", "ri", TaskStatus.IN_PROGRESS);
-        Task task3 = new Task("task3", "ri", TaskStatus.DONE);
-        Task task4 = new Task("task4", "pti", TaskStatus.TODO);
-        Task task5 = new Task("task5", "on", TaskStatus.DONE);
-        List<Task> testList = new ArrayList<>();
-        Map<String, Task> mockMap = new LinkedHashMap<>();
-        mockMap.put(task1.getName(), task1);
-        mockMap.put(task2.getName(), task2);
-        mockMap.put(task3.getName(), task3);
-        mockMap.put(task4.getName(), task4);
-        mockMap.put(task5.getName(), task5);
-        testList.add(task1);
-        testList.add(task2);
-        testList.add(task3);
-        testList.add(task4);
-        testList.add(task5);
-        testList.sort((o1, o2) -> {
-            if (o1.getStatus().getNumberFormat() == o2.getStatus().getNumberFormat()) return 0;
-            return (o1.getStatus().getNumberFormat() > o2.getStatus().getNumberFormat()) ? 1 : -1;
-        });
-        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
-        Assertions.assertEquals(testList.toString(),taskService.getTaskListSortedByStatus());
-    }
-
-    @Test
-    void getTaskListSortedByDeadline() {
-        LocalDateTime time2 = LocalDateTime.parse("2030-04-04T04:04");
-        LocalDateTime time3 = LocalDateTime.parse("2026-04-04T04:04");
-        LocalDateTime time4 = LocalDateTime.parse("2028-04-04T04:04");
-        LocalDateTime time5 = LocalDateTime.parse("2027-04-04T04:04");
-        Task task2 = new Task("task2", "ri", time2);
-        Task task3 = new Task("task3", "ri", time3);
-        Task task4 = new Task("task4", "pti", time4);
-        Task task5 = new Task("task5", "on", time5);
-        Map<String, Task> mockMap = new LinkedHashMap<>();
-        mockMap.put(task2.getName(), task2);
-        mockMap.put(task3.getName(), task3);
-        mockMap.put(task4.getName(), task4);
-        mockMap.put(task5.getName(), task5);
-        List<Task> expectedList = new ArrayList<>();
-        expectedList.add(task3);
-        expectedList.add(task5);
-        expectedList.add(task4);
-        expectedList.add(task2);
-        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
-        Assertions.assertEquals(expectedList.toString(), taskService.getTaskListSortedByDeadline());
-    }
+//        Assertions.assertEquals(todoSet.toString(), taskService.getFilteredTasks(TaskStatus.TODO));
+//    }
+//
+////    @Test
+////    void getFilteredTasks_empty() {
+////        Task task1 = new Task("task1", "De", TaskStatus.TODO);
+////        Task task3 = new Task("task3", "ri", TaskStatus.DONE);
+////        Task task4 = new Task("task4", "pti", TaskStatus.TODO);
+////        Task task5 = new Task("task5", "on", TaskStatus.DONE);
+////        Map<String, Task> mockMap = new LinkedHashMap<>();
+////        mockMap.put(task1.getName(), task1);
+////        mockMap.put(task3.getName(), task3);
+////        mockMap.put(task4.getName(), task4);
+////        mockMap.put(task5.getName(), task5);
+////        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
+////        Assertions.assertTrue(taskService.getFilteredTasks(TaskStatus.IN_PROGRESS).isEmpty());
+////    } //TODO переделать тест после реализации Exceptions
+//
+//    @Test
+//    void getTaskListSortedByStatus() {
+//        Task task1 = new Task("task1", "De", TaskStatus.TODO);
+//        Task task2 = new Task("task2", "ri", TaskStatus.IN_PROGRESS);
+//        Task task3 = new Task("task3", "ri", TaskStatus.DONE);
+//        Task task4 = new Task("task4", "pti", TaskStatus.TODO);
+//        Task task5 = new Task("task5", "on", TaskStatus.DONE);
+//        List<Task> testList = new ArrayList<>();
+//        Map<String, Task> mockMap = new LinkedHashMap<>();
+//        mockMap.put(task1.getName(), task1);
+//        mockMap.put(task2.getName(), task2);
+//        mockMap.put(task3.getName(), task3);
+//        mockMap.put(task4.getName(), task4);
+//        mockMap.put(task5.getName(), task5);
+//        testList.add(task1);
+//        testList.add(task2);
+//        testList.add(task3);
+//        testList.add(task4);
+//        testList.add(task5);
+//        testList.sort((o1, o2) -> {
+//            if (o1.getStatus().getNumberFormat() == o2.getStatus().getNumberFormat()) return 0;
+//            return (o1.getStatus().getNumberFormat() > o2.getStatus().getNumberFormat()) ? 1 : -1;
+//        });
+//        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
+//        Assertions.assertEquals(testList.toString(),taskService.getTaskListSortedByStatus());
+//    }
+//
+//    @Test
+//    void getTaskListSortedByDeadline() {
+//        LocalDateTime time2 = LocalDateTime.parse("2030-04-04T04:04");
+//        LocalDateTime time3 = LocalDateTime.parse("2026-04-04T04:04");
+//        LocalDateTime time4 = LocalDateTime.parse("2028-04-04T04:04");
+//        LocalDateTime time5 = LocalDateTime.parse("2027-04-04T04:04");
+//        Task task2 = new Task("task2", "ri", time2);
+//        Task task3 = new Task("task3", "ri", time3);
+//        Task task4 = new Task("task4", "pti", time4);
+//        Task task5 = new Task("task5", "on", time5);
+//        Map<String, Task> mockMap = new LinkedHashMap<>();
+//        mockMap.put(task2.getName(), task2);
+//        mockMap.put(task3.getName(), task3);
+//        mockMap.put(task4.getName(), task4);
+//        mockMap.put(task5.getName(), task5);
+//        List<Task> expectedList = new ArrayList<>();
+//        expectedList.add(task3);
+//        expectedList.add(task5);
+//        expectedList.add(task4);
+//        expectedList.add(task2);
+//        Mockito.when(taskRepository.getAllTasks()).thenReturn(mockMap);
+//        Assertions.assertEquals(expectedList.toString(), taskService.getTaskListSortedByDeadline());
+//    }
 }

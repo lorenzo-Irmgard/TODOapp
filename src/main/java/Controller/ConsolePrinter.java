@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 public class ConsolePrinter {
     @RequiredArgsConstructor
     @Getter
-    enum MessageTypeForUserInputTaskName {
+    enum InputTaskNameMessage {
         ADD_NEW_TASK("Enter name for your new task:"),
         DELETE_TASK("Enter name of task you want to delete:"),
         EDIT_TASK("Enter name of task you want to edit"),

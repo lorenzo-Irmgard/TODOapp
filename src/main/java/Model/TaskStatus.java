@@ -17,7 +17,7 @@ public enum TaskStatus {
     @Getter
     private final static List<String> possibleOptions = Arrays.asList("1", "2", "3");
 
-    public static TaskStatus convertFromNumberToStatus(int optionInNumberFormat) {
+    public static TaskStatus convertNumberToStatus(int optionInNumberFormat) {
         if (optionInNumberFormat == TODO.numberFormat) return TODO;
         if (optionInNumberFormat == IN_PROGRESS.numberFormat) return IN_PROGRESS;
         return DONE;

@@ -9,16 +9,17 @@ import java.util.Map;
 public class TaskRepository {
     private final Map<String, Task> tasks = new LinkedHashMap<>();
 
-    public TaskOperationStatus addTask(Task task) {
-        if(tasks.containsKey(task.getName())) {
-            return TaskOperationStatus.TASK_ALREADY_EXISTS;
-        }
+    public void addTask(Task task) {
         tasks.put(task.getName(), task);
-        return TaskOperationStatus.SUCCESS;
     }
 
-    public TaskOperationStatus findAndRemoveTask(String taskName) {
-        return (tasks.remove(taskName) == null) ? TaskOperationStatus.TASK_NOT_FOUND : TaskOperationStatus.SUCCESS;
+    public void replaceTask(String oldNameTask, Task task) {
+        tasks.remove(oldNameTask);
+        tasks.put(task.getName(), task);
+    }
+
+    public void removeTask(String taskName) {
+        tasks.remove(taskName);
     }
 
     public Task getTask(String taskName) {
@@ -31,5 +32,9 @@ public class TaskRepository {
 
     public boolean containsTask(String taskName) {
         return tasks.containsKey(taskName);
+    }
+
+    public boolean containsTask(Task task) {
+        return tasks.containsValue(task);
     }
 }

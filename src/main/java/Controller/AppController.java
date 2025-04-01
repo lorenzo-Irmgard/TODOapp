@@ -1,5 +1,8 @@
 package Controller;
 
+import Exceptions.EmptyTasksListException;
+import Exceptions.NoSuchTaskException;
+import Exceptions.TaskAlreadyExistException;
 import Model.Task;
 import Model.TaskStatus;
 import Repository.TaskRepository;
@@ -9,89 +12,122 @@ import java.time.LocalDateTime;
 
 import static Controller.MainMenuOptions.*;
 import static Controller.TaskEditingMenuOptions.*;
+import static Model.TaskStatus.convertNumberToStatus;
+import static Controller.StatusMessages.*;
 
 
 public class AppController {
     private final TaskService taskService = new TaskService(new TaskRepository());
-    private final InputScanAndValidate inputScanAndValidate = new InputScanAndValidate();
+    private final ScanAndValidate scanAndValidate = new ScanAndValidate();
 
     public void mainLoop() {
         while(true) {
             ConsolePrinter.printMainMenu();
-            int userInput = inputScanAndValidate.userChoiceInMenu(MainMenuOptions.getPossibleOptions());
+            int userInput = scanAndValidate.choiceInMenu(MainMenuOptions.getPossibleOptions());
             if (userInput == EXIT.getNumberFormat()) break;
             System.out.println(chooseServiceMethodBasedOnUserInput(userInput));
         }
     }
     private String chooseServiceMethodBasedOnUserInput(int userInput) {
         if (userInput == LIST_ALL_TASKS.getNumberFormat()) {
-            return taskService.getAllTasks();
+            try {
+                return taskService.getAllTasks();
+            } catch (EmptyTasksListException e) {
+                return e.getMessage();
+            }
         }
         if (userInput == ADD.getNumberFormat()) {
-            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.ADD_NEW_TASK.getMessage());
-            return taskService.addTask(formNewTaskObject());
+            System.out.println(ConsolePrinter.InputTaskNameMessage.ADD_NEW_TASK.getMessage());
+            try {
+                taskService.addTask(formNewTaskObject());
+                return TASK_SUCCESSFULLY_ADDED.getMessage();
+            } catch (TaskAlreadyExistException e) {
+                return e.getMessage();
+            }
         }
         if (userInput == DELETE.getNumberFormat()) {
-            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.DELETE_TASK.getMessage());
-            return taskService.removeTask(inputScanAndValidate.getTaskNameFromUser());
+            System.out.println(ConsolePrinter.InputTaskNameMessage.DELETE_TASK.getMessage());
+            try {
+                taskService.removeTask(scanAndValidate.taskName());
+                return TASK_SUCCESSFULLY_DELETED.getMessage();
+            } catch (NoSuchTaskException e) {
+                return e.getMessage();
+            }
         }
         if (userInput == EDIT.getNumberFormat()) {
-            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.EDIT_TASK.getMessage());
-            String nameOfTaskToEdit = inputScanAndValidate.getTaskNameFromUser();
+            System.out.println(ConsolePrinter.InputTaskNameMessage.EDIT_TASK.getMessage());
+            String nameOfTaskToEdit = scanAndValidate.taskName();
             if (!taskService.isTaskExist(nameOfTaskToEdit)) return "No such task!";
-            return chooseServiceMethodForEditing(nameOfTaskToEdit, inputScanAndValidate.getUserChoiceForTaskFieldsToEdit());
+            return chooseServiceMethodForEditing(nameOfTaskToEdit, scanAndValidate.taskFieldsToEdit());
         }
         if (userInput == FILTER.getNumberFormat()) {
             System.out.println("Select the status of which to filter");
             ConsolePrinter.printTaskStatusOptions();
-            int userInputForFilter = inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions());
-            return taskService.getFilteredTasks(TaskStatus.convertFromNumberToStatus(userInputForFilter));
+            int userInputForFilter = scanAndValidate.choiceInMenu(TaskStatus.getPossibleOptions());
+            try {
+                return taskService.getFilteredTasks(convertNumberToStatus(userInputForFilter));
+            } catch (EmptyTasksListException e) {
+                return e.getMessage();
+            }
         }
         if (userInput == SORT.getNumberFormat()) {
             System.out.println("Select which field to sort");
             ConsolePrinter.printSortingMenuOptions();
-            return chooseServiceMethodForSorting(inputScanAndValidate.userChoiceInMenu(SortingMenuOptions.getPossibleOptions()));
+            return chooseServiceMethodForSorting(scanAndValidate.choiceInMenu(SortingMenuOptions.getPossibleOptions()));
         }
         return "No such option";
     }
 
     private Task formNewTaskObject() {
-        String taskName = inputScanAndValidate.getTaskNameFromUser();
-        String taskDescription = inputScanAndValidate.getTaskDescriptionFromUser();
-        LocalDateTime deadline = inputScanAndValidate.getTaskDeadlineFromUser();
+        String taskName = scanAndValidate.taskName();
+        String taskDescription = scanAndValidate.taskDescription();
+        LocalDateTime deadline = scanAndValidate.taskDeadline();
         return new Task(taskName, taskDescription, deadline);
     }
 
     private String chooseServiceMethodForSorting(int userInput) {
         if (userInput == SortingMenuOptions.SORT_BY_STATUS.getOptionInNumberFormat()) {
-            return taskService.getTaskListSortedByStatus();
+            try {
+                return taskService.getTaskListSortedByStatus();
+            } catch (EmptyTasksListException e) {
+                return e.getMessage();
+            }
         } else {
-            return taskService.getTaskListSortedByDeadline();
+            try {
+                return taskService.getTaskListSortedByDeadline();
+            } catch (EmptyTasksListException e) {
+                return e.getMessage();
+            }
         }
     }
 
     private String chooseServiceMethodForEditing(String nameOfTaskToEdit, int userInput) {
-        String result = "";
-        if (userInput == EXIT_EDITING_TASK.getOptionInNumberFormat()) return result;
+        if (userInput == EXIT_EDITING_TASK.getOptionInNumberFormat()) {
+            return "";
+        }
         boolean editAllFieldsOption = userInput == EDIT_ALL_FIELDS.getOptionInNumberFormat();
         if (userInput == EDIT_NAME.getOptionInNumberFormat() || editAllFieldsOption) {
-            System.out.println(ConsolePrinter.MessageTypeForUserInputTaskName.RENAME_TASK.getMessage());
-            String newName = inputScanAndValidate.getTaskNameFromUser();
-            result = taskService.editTaskName(nameOfTaskToEdit, newName);
-            nameOfTaskToEdit = newName;
+            System.out.println(ConsolePrinter.InputTaskNameMessage.RENAME_TASK.getMessage());
+            String newName = scanAndValidate.taskName();
+            try {
+                taskService.editTaskName(nameOfTaskToEdit, newName);
+                nameOfTaskToEdit = newName;
+            } catch (TaskAlreadyExistException e) {
+                return e.getMessage();
+            }
         }
         if (userInput == EDIT_STATUS.getOptionInNumberFormat() || editAllFieldsOption) {
             System.out.println("Select new task status:");
             ConsolePrinter.printTaskStatusOptions();
-            result = taskService.editTaskStatus(nameOfTaskToEdit, TaskStatus.convertFromNumberToStatus(inputScanAndValidate.userChoiceInMenu(TaskStatus.getPossibleOptions())));
+            taskService.editTaskStatus(nameOfTaskToEdit, convertNumberToStatus(scanAndValidate.choiceInMenu(TaskStatus.getPossibleOptions())));
         }
         if (userInput == TaskEditingMenuOptions.EDIT_DESCRIPTION.getOptionInNumberFormat() || editAllFieldsOption) {
-            result = taskService.editTaskDescription(nameOfTaskToEdit, inputScanAndValidate.getTaskDescriptionFromUser());
+            taskService.editTaskDescription(nameOfTaskToEdit, scanAndValidate.taskDescription());
         }
         if (userInput == EDIT_DEADLINE.getOptionInNumberFormat() || editAllFieldsOption) {
-            result = taskService.editTaskDeadline(nameOfTaskToEdit, inputScanAndValidate.getTaskDeadlineFromUser());
+            taskService.editTaskDeadline(nameOfTaskToEdit, scanAndValidate.taskDeadline());
         }
-        return result;
+        return TASK_SUCCESSFULLY_EDITED.getMessage();
     }
 }
 
