@@ -1,4 +1,5 @@
 import Exceptions.EmptyTasksListException;
+import Exceptions.NoSuchTaskException;
 import Exceptions.TaskAlreadyExistException;
 import Model.Task;
 import Repository.TaskRepository;
@@ -22,21 +23,6 @@ public class TaskServiceTest {
     @Mock
     private TaskRepository taskRepository;
 
-//    @Test
-//    void getAllTasks() {
-//        Task task1 = new Task("task1", "De");
-//        Task task2 = new Task("task2", "scr");
-//        Task task3 = new Task("task3", "ipt");
-//        Task task4 = new Task("task4", "ion");
-//
-//        Map<String, Task> testTasks = new LinkedHashMap<>();
-//        testTasks.put(task1.getName(), task1);
-//        testTasks.put(task2.getName(), task2);
-//        testTasks.put(task3.getName(), task3);
-//        testTasks.put(task4.getName(), task4);
-//        Mockito.when(taskRepository.getAllTasks()).thenReturn(testTasks);
-//        Assertions.assertEquals(testTasks.values().toString(), taskService.getAllTasks());
-//    }
 
     @Test
     public void getAllTasks() throws EmptyTasksListException {
@@ -54,12 +40,6 @@ public class TaskServiceTest {
         Assertions.assertEquals(testTasks.values().toString(), taskService.getAllTasks());
     }
 
-//    @Test
-//    void addTask_newTask() {
-//        Task task1 = new Task("task1", "De");
-//        Mockito.when(taskRepository.addTask(task1)).thenReturn(TaskOperationStatus.SUCCESS);
-//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_ADDED.getMessage(), taskService.addTask(task1));
-//    }
 
     @Test
     void addTask_WhenTaskAlreadyExists_ThrowTaskAlreadyExistException() {
@@ -77,28 +57,38 @@ public class TaskServiceTest {
     }
 
 
+    @Test
+    void removeTask_WhenTaskExists() {
+        Task task1 = new Task("task1", "De");
+        Mockito.when(taskRepository.containsTask(task1)).thenReturn(true);
+        Mockito.verify(taskRepository).removeTask(task1.getName());
+    }
+
+    @Test
+    void removeTask_WhenTaskDoesNotExist_ThrowNoSuchTaskException() {
+        Task task1 = new Task("task1", "De");
+        Mockito.when(taskRepository.containsTask(task1)).thenReturn(false);
+        Assertions.assertThrows(NoSuchTaskException.class, () -> taskService.removeTask(task1.getName()));
+    }
+
+    @Test
+    void editTaskName_WhenTaskAlreadyExists_ThrowTaskAlreadyExistException() {
+        Task task1 = new Task("task1", "De");
+        Task task2 = new Task("task2", "De");
+        Mockito.when(taskRepository.containsTask(task2.getName())).thenReturn(true);
+        Assertions.assertThrows(TaskAlreadyExistException.class, () -> taskService.editTaskName(task1.getName(), task2.getName()));
+    }
+
 //    @Test
-//    void removeTask() {
+//    void editTaskName_WhenTaskIsNew_ChangeTaskName() throws TaskAlreadyExistException {
 //        Task task1 = new Task("task1", "De");
-//        Mockito.when(taskRepository.removeTask(task1.getName())).thenReturn(TaskOperationStatus.SUCCESS);
-//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_DELETED.getMessage(), taskService.removeTask(task1.getName()));
-//    }
-//
-//    @Test
-//    void removeTask_noSuchTask() {
-//        Task task1 = new Task("task1", "De");
-//        Mockito.when(taskRepository.removeTask(task1.getName())).thenReturn(TaskOperationStatus.TASK_NOT_FOUND);
-//        Assertions.assertEquals(StatusMessages.TASk_DELETION_FAILED.getMessage(), taskService.removeTask(task1.getName()));
-//    }
-//
-//    @Test
-//    void editTaskName() {
-//        Task task1 = new Task("task1", "De");
-//        Mockito.when(taskRepository.containsTask("newTaskName")).thenReturn(false);
+//        String newName = "newTaskName";
+//        Mockito.when(taskRepository.containsTask(newName)).thenReturn(false);
 //        Mockito.when(taskRepository.getTask(task1.getName())).thenReturn(task1);
-//        Assertions.assertEquals(StatusMessages.TASK_SUCCESSFULLY_EDITED.getMessage(), taskService.editTaskName(task1.getName(), "newTaskName"));
-//        Assertions.assertEquals("newTaskName", task1.getName());
-//    }
+//        taskService.editTaskName(task1.getName(), newName);
+//        Assertions.assertEquals(newName, task1.getName());
+//        Mockito.verify(taskRepository).replaceTask(task1.getName(), task1);
+//    } //TODO что то не так, исправить
 //
 //    @Test
 //    void editTaskName_taskAlreadyExists() {
